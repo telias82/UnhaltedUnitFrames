@@ -1,0 +1,23 @@
+## Title: |cFF8080FFUnhalted|rUnitFrames
+## Interface: 50400
+## Version: V12.0.18-MoP
+## Author: |cFF8080FFUnhalted|r
+## Notes: Replacement Unit Frames for Blizzard. Focused on performance, customization & a complete out of the box experience.
+## SavedVariables: UUFDB
+## Category-enUS: |cFF8080FFUnhalted|r Development
+## IconTexture: Interface\AddOns\UnhaltedUnitFrames\Media\Textures\Logo.tga
+## X-oUF: UnhaltedUnitFrames
+## X-Curse-Project-ID: 1235670
+## X-Wago-ID: 96do35NO
+
+# Load Libraries
+Libraries/Init.xml
+
+# Load Locales
+Locales/enUS.lua
+
+# Load Elements
+Elements/Init.xml
+
+# Load Core
+Core/Init.xml
