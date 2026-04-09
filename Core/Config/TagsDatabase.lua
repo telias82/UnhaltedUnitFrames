@@ -46,13 +46,13 @@ local Tags = {
     ["curpp:manapercent:abbr"] = "UNIT_POWER_UPDATE UNIT_MAXPOWER",
     ["curpp:manapercent-with-sign"] = "UNIT_POWER_UPDATE UNIT_MAXPOWER",
     ["curpp:manapercent-with-sign:abbr"] = "UNIT_POWER_UPDATE UNIT_MAXPOWER",
-	["maxhp:abbr:colour"] = "UNIT_HEALTH UNIT_MAXHEALTH",
 
     ["maxpp:abbr"] = "UNIT_POWER_UPDATE UNIT_MAXPOWER",
     ["maxpp:colour"] = "UNIT_POWER_UPDATE UNIT_MAXPOWER",
     ["maxpp:abbr:colour"] = "UNIT_POWER_UPDATE UNIT_MAXPOWER",
 
     ["name:colour"] = "UNIT_CLASSIFICATION_CHANGED UNIT_FACTION UNIT_NAME_UPDATE",
+    ["maxhp:abbr:colour"] = "UNIT_HEALTH UNIT_MAXHEALTH",
 }
 
 for i = 1, 25 do
@@ -178,27 +178,6 @@ oUF.Tags.Methods["curhpperhp:absorb"] = function(unit)
     return ""
 end
 
-oUF.Tags.Methods["curhpperhp:abbr"] = function(unit)
-    if not unit or not UnitExists(unit) then return "" end
-    local unitHealth = UnitHealth(unit)
-    local unitMaxHealth = UnitHealthMax(unit)
-    local unitHealthPercent = unitMaxHealth > 0 and (unitHealth / unitMaxHealth * 100) or 0
-    local unitStatus = UnitIsDead(unit) and "Dead" or UnitIsGhost(unit) and "Ghost" or not UnitIsConnected(unit) and "Offline"
-    if unitStatus then
-        return unitStatus
-    else
-        if UUF.SEPARATOR == "[]" then
-            return string.format("%s [%.0f%%]", AbbreviateValue(unitHealth), unitHealthPercent)
-        elseif UUF.SEPARATOR == "()" then
-            return string.format("%s (%.0f%%)", AbbreviateValue(unitHealth), unitHealthPercent)
-        elseif UUF.SEPARATOR == " " then
-            return string.format("%s %.0f%%", AbbreviateValue(unitHealth), unitHealthPercent)
-        else
-            return string.format("%s %s %.0f%%", AbbreviateValue(unitHealth), UUF.SEPARATOR, unitHealthPercent)
-        end
-    end
-end
-
 oUF.Tags.Methods["curhpperhp"] = function(unit)
     if not unit or not UnitExists(unit) then return "" end
     local unitHealth = UnitHealth(unit)
@@ -216,6 +195,27 @@ oUF.Tags.Methods["curhpperhp"] = function(unit)
             return string.format("%s %.0f%%", unitHealth, unitHealthPercent)
         else
             return string.format("%s %s %.0f%%", unitHealth, UUF.SEPARATOR, unitHealthPercent)
+        end
+    end
+end
+
+oUF.Tags.Methods["curhpperhp:abbr"] = function(unit)
+    if not unit or not UnitExists(unit) then return "" end
+    local unitHealth = UnitHealth(unit)
+    local unitMaxHealth = UnitHealthMax(unit)
+    local unitHealthPercent = unitMaxHealth > 0 and (unitHealth / unitMaxHealth * 100) or 0
+    local unitStatus = UnitIsDead(unit) and "Dead" or UnitIsGhost(unit) and "Ghost" or not UnitIsConnected(unit) and "Offline"
+    if unitStatus then
+        return unitStatus
+    else
+        if UUF.SEPARATOR == "[]" then
+            return string.format("%s [%.0f%%]", AbbreviateValue(unitHealth), unitHealthPercent)
+        elseif UUF.SEPARATOR == "()" then
+            return string.format("%s (%.0f%%)", AbbreviateValue(unitHealth), unitHealthPercent)
+        elseif UUF.SEPARATOR == " " then
+            return string.format("%s %.0f%%", AbbreviateValue(unitHealth), unitHealthPercent)
+        else
+            return string.format("%s %s %.0f%%", AbbreviateValue(unitHealth), UUF.SEPARATOR, unitHealthPercent)
         end
     end
 end

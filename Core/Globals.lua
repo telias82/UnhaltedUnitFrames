@@ -276,20 +276,14 @@ function UUF:GetNormalizedUnit(unit)
 end
 
 function UUF:RequiresAlternativePowerBar()
-    -- In MoP Classic the AlternativePowerBar is used for specific specs.
-    -- Spec IDs here are MoP-era IDs from GetSpecializationInfo().
-    local SpecsNeedingAltPower = {
-        PRIEST  = { 258 },           -- Shadow (spec ID may vary; included for forward compat)
-        DRUID   = { 102, 103, 104 }, -- Balance, Feral, Guardian
-    }
+    -- In MoP Classic, Druids in Bear or Cat form have their mana moved to
+    -- the alternative power bar. We detect this via shapeshift form ID only —
+    -- no spec ID lookup needed.
+    -- Form IDs: 1 = Cat, 5 = Bear/Dire Bear
     local class = select(2, UnitClass("player"))
-    local specIndex = UUF_GetSpecialization()
-    if not specIndex then return false end
-    local specID = (specIndex and GetSpecializationInfoForClassID) and select(1, GetSpecializationInfoForClassID(select(3, UnitClass('player')), specIndex)) or (specIndex and GetSpecializationInfo and GetSpecializationInfo(specIndex))
-    local classSpecs = SpecsNeedingAltPower[class]
-    if not classSpecs then return false end
-    for _, requiredSpec in ipairs(classSpecs) do if specID == requiredSpec then return true end end
-    return false
+    if class ~= "DRUID" then return false end
+    local form = GetShapeshiftFormID()
+    return form == 1 or form == 5
 end
 
 UUF.LayoutConfig = {
@@ -436,9 +430,6 @@ UUF.AURA_FILTERS = {
         ["HELPFUL"] = {Title = "Helpful", Desc = "Buffs"},
         ["HELPFUL|PLAYER"] = {Title = "Player", Desc = "Buffs applied by the Player"},
         ["HELPFUL|RAID"] = {Title = "Raid", Desc = "|cFF40FF40Helpful|r: Buffs filtered by the Player's Class."},
-        ["EXTERNAL_DEFENSIVE"] = {Title = "External Defensives", Desc = "Externals."},
-        ["BIG_DEFENSIVE"] = {Title = "Big Defensives", Desc = "Big Defensive Buffs."},
-        ["IMPORTANT"] = {Title = "Important", Desc = "Important Buffs. Flagged by |cFF00B0F7Blizzard|r."},
     },
     Debuffs = {
         ["HARMFUL"] = {Title = "Harmful", Desc = "Debuffs"},
@@ -446,6 +437,5 @@ UUF.AURA_FILTERS = {
         ["HARMFUL|RAID"] = {Title = "Raid", Desc = "|cFFFF4040Harmful|r: Debuffs that show up on Raid Frames."},
         ["CROWD_CONTROL"] = {Title = "Crowd Control", Desc = "Crowd Control Effects."},
         ["RAID_PLAYER_DISPELLABLE"] = {Title = "Player Dispellable", Desc = "Auras that the Player can dispel."},
-        ["IMPORTANT"] = {Title = "Important", Desc = "Important Debuffs. Flagged by |cFF00B0F7Blizzard|r."},
     }
 }

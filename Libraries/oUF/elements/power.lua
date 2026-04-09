@@ -278,7 +278,8 @@ local function UpdatePrediction(self, event, unit)
 	end
 
 	if(event == 'UNIT_SPELLCAST_START' and startTime ~= endTime) then
-		local costTable = C_Spell.GetSpellPowerCost(spellID)
+		-- MoP Classic: C_Spell does not exist; guard to avoid nil index error
+		local costTable = C_Spell and C_Spell.GetSpellPowerCost and C_Spell.GetSpellPowerCost(spellID)
 		if(not costTable) then return end
 
 		-- hasRequiredAura is always false if there's only 1 subtable
