@@ -53,12 +53,6 @@ function UUF:CreateUnitDispelHighlight(unitFrame, unit)
         unitFrame.dispelColorCurve = {}
         UUF:UpdateDispelColorCurve(unitFrame)
     end
-
-    if DispelHighlightDB.Enabled then
-        unitFrame.DispelHighlight:Show()
-    else
-        unitFrame.DispelHighlight:Hide()
-    end
 end
 
 function UUF:UpdateUnitDispelHighlight(unitFrame, unit)
@@ -83,7 +77,7 @@ function UUF:UpdateUnitDispelHighlight(unitFrame, unit)
                 unitFrame.DispelHighlight:SetTexture("Interface\\Buttons\\WHITE8X8")
                 unitFrame.DispelHighlight:SetAlpha(0.75)
             end
-            unitFrame.DispelHighlight:Show()
+            UUF:UpdateUnitDispelState(unitFrame, unit)
         else
             UUF:UnregisterDispelHighlightEvents(unitFrame)
             unitFrame.DispelHighlight:Hide()
