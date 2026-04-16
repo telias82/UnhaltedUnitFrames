@@ -108,20 +108,37 @@ function UUF:UpdateUnitDispelState(unitFrame, unit)
         return
     end
 
-    -- MoP Classic: no C_UnitAuras. Scan debuffs with UnitDebuff instead.
+    -- MoP Classic: reuse the debuff data already scanned by oUF's UNIT_AURA handler
+    -- (oUF registers first, so DebuffContainer.all is populated before we run).
+    -- Fall back to a direct UnitDebuff scan only when that data is unavailable.
     local colorToApply = nil
-    local i = 1
-    while true do
-        local name, _, _, debuffType, _, _, _, _, _, _ = UnitDebuff(unit, i)
-        if not name then break end
-        if debuffType and debuffType ~= "" and dispelList[debuffType] then
-            local color = unitFrame.dispelColorCurve and unitFrame.dispelColorCurve[debuffType]
-            if color then
-                colorToApply = color
-                break -- use first dispellable debuff found (highest priority)
+    local cachedDebuffs = unitFrame.DebuffContainer and unitFrame.DebuffContainer.all
+    if cachedDebuffs then
+        for i = 1, #cachedDebuffs do
+            local data = cachedDebuffs[i]
+            if data and data.debuffType and data.debuffType ~= "" and dispelList[data.debuffType] then
+                local color = unitFrame.dispelColorCurve and unitFrame.dispelColorCurve[data.debuffType]
+                if color then
+                    colorToApply = color
+                    break
+                end
             end
         end
-        i = i + 1
+    else
+        -- Fallback: direct scan (DebuffContainer disabled or not yet initialized).
+        local i = 1
+        while true do
+            local name, _, _, debuffType = UnitDebuff(unit, i)
+            if not name then break end
+            if debuffType and debuffType ~= "" and dispelList[debuffType] then
+                local color = unitFrame.dispelColorCurve and unitFrame.dispelColorCurve[debuffType]
+                if color then
+                    colorToApply = color
+                    break
+                end
+            end
+            i = i + 1
+        end
     end
 
     if colorToApply then

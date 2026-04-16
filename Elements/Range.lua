@@ -1,5 +1,4 @@
 local _, UUF = ...
-local isRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 
 UUF.RangeEvtFrames = {}
 
@@ -65,12 +64,12 @@ local RangeSpells = {
             100780, -- Tiger Palm (Melee)
         },
         PALADIN = {
-            20473, -- Holy Shock (40 yards)
-            20271, -- Judgement (30 yards)
-            62124, -- Hand of Reckoning (30 yards)
+            20473,  -- Holy Shock (40 yards)
+            20271,  -- Judgement (30 yards)
+            62124,  -- Hand of Reckoning (30 yards)
             183218, -- Hand of Hindrance (30 yards)
-            853,   -- Hammer of Justice (10 yards)
-            35395, -- Crusader Strike (Melee)
+            853,    -- Hammer of Justice (10 yards)
+            35395,  -- Crusader Strike (Melee)
         },
         PRIEST = {
             585,  -- Smite (40 yards)
@@ -218,35 +217,29 @@ local RangeSpells = {
     },
 }
 
-local IsSpellInSpellBook = IsSpellInSpellBook or function(spellID) return GetSpellInfo(spellID) ~= nil end
 local playerClass = select(2, UnitClass("player"))
-local activeSpells = {
-    enemy = {},
-    friendly = {},
-    resurrect = {},
-    pet = {},
+
+-- One cached spell name per category. Picked once at login/spellbook change,
+-- used directly in IsSpellInRange — no per-tick iteration.
+local activeSpellName = {
+    enemy     = nil,
+    friendly  = nil,
+    resurrect = nil,
+    pet       = nil,
 }
 
-local function NotSecretValue(value)
-    -- issecretvalue is retail-only; in MoP Classic all values are readable
-    return true
+local function FindBestSpell(spellList)
+    for _, spellID in ipairs(spellList or {}) do
+        local name = GetSpellInfo(spellID)
+        if name then return name end
+    end
 end
 
 local function UpdateActiveSpells()
-
-    local function BuildList(category, spellList)
-        wipe(activeSpells[category])
-        for _, spellID in ipairs(spellList or {}) do
-            if GetSpellInfo(spellID) then
-                activeSpells[category][spellID] = true
-            end
-        end
-    end
-
-    BuildList("enemy", RangeSpells.ENEMY[playerClass])
-    BuildList("friendly", RangeSpells.FRIENDLY[playerClass])
-    BuildList("resurrect", RangeSpells.RESURRECT[playerClass])
-    BuildList("pet", RangeSpells.PET[playerClass])
+    activeSpellName.enemy     = FindBestSpell(RangeSpells.ENEMY[playerClass])
+    activeSpellName.friendly  = FindBestSpell(RangeSpells.FRIENDLY[playerClass])
+    activeSpellName.resurrect = FindBestSpell(RangeSpells.RESURRECT[playerClass])
+    activeSpellName.pet       = FindBestSpell(RangeSpells.PET[playerClass])
 end
 
 local spellUpdateFrame = CreateFrame("Frame")
@@ -254,74 +247,22 @@ spellUpdateFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 spellUpdateFrame:RegisterEvent("SPELLS_CHANGED")
 spellUpdateFrame:SetScript("OnEvent", UpdateActiveSpells)
 
-local RangeEventFrame = CreateFrame("Frame")
-RangeEventFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
-RangeEventFrame:RegisterEvent("UNIT_TARGET")
-RangeEventFrame:RegisterEvent("SPELL_UPDATE_COOLDOWN")
-RangeEventFrame:SetScript("OnEvent", function()
-    for _, frameData in ipairs(UUF.RangeEvtFrames) do
-        UUF:UpdateRangeAlpha(frameData.frame, frameData.unit)
-    end
-end)
-
--- local function GetGroupUnit(unit)
---     if unit == "player" or unit:match("^party") or unit:match("^raid") then return unit end
-
---     if UnitInParty(unit) or UnitInRaid(unit) then
---         local isRaid = IsInRaid()
---         for i = 1, GetNumGroupMembers() do
---             local groupUnit = (isRaid and "raid" or "party") .. i
---             if UnitIsUnit(unit, groupUnit) then
---                 return groupUnit
---             end
---         end
---     end
--- end
-
-local function UnitSpellRange(unit, spells)
-    local isNotInRange
-    for spellID in pairs(spells) do
-        -- MoP Classic: IsSpellInRange takes (spellName, unit)
-        local spellName = GetSpellInfo(spellID)
-        if spellName then
-            local inRange = IsSpellInRange(spellName, unit)
-            if inRange == 1 then
-                return true
-            elseif inRange == 0 then
-                isNotInRange = true
-            end
-        end
-    end
-    if isNotInRange then return false end
-end
-
-local function UnitInSpellsRange(unit, category)
-    local spells = activeSpells[category]
-    if not next(spells) then
+-- Check range for a unit using the single cached spell for that category.
+-- Falls back to CheckInteractDistance (interact = ~28 yards) when no spell is
+-- available and we are out of combat.
+local function CheckSpellRange(unit, category)
+    local spellName = activeSpellName[category]
+    if not spellName then
         if not InCombatLockdown() then return CheckInteractDistance(unit, 4) end
         return nil
     end
 
-    local inRange = UnitSpellRange(unit, spells)
-    if (not inRange or inRange == 1) and not InCombatLockdown() then
-        local interactDistance = CheckInteractDistance(unit, 4)
-        if NotSecretValue(interactDistance) then
-            return interactDistance
-        end
-        return nil
-    else
-        if NotSecretValue(inRange) then
-            return (inRange == nil and 1) or inRange
-        end
-        return nil
-    end
-end
-
-local function FriendlyIsInRange(realUnit)
-    local unit = --[[GetGroupUnit(realUnit) or ]]realUnit
-
-    -- MoP Classic: UnitPhaseReason and retail UnitInRange signature don't exist.
-    return UnitInSpellsRange(unit, "friendly")
+    local inRange = IsSpellInRange(spellName, unit)
+    if inRange == 1 then return true end
+    if inRange == 0 then return false end
+    -- nil means the spell isn't applicable to this target type; fall back
+    if not InCombatLockdown() then return CheckInteractDistance(unit, 4) end
+    return nil
 end
 
 function UUF:RegisterRangeFrame(frameName, unit)
@@ -330,14 +271,18 @@ function UUF:RegisterRangeFrame(frameName, unit)
     local frame = type(frameName) == "table" and frameName or _G[frameName]
     if not frame then return end
 
-    table.insert(UUF.RangeEvtFrames, { frame = frame, unit = unit })
+    local RangeDB = UUF.db.profile.General.Range
+    frame.Range = RangeDB.Enabled and RangeDB or nil
 
-    if UUF.db.profile.General.Range.Enabled then
-        frame.Range = UUF.db.profile.General.Range
-    else
-        frame.Range = nil
-    end
+    -- Per-frame ticker at 0.5s — predictable cadence, no event spam.
+    -- UpdateRangeAlpha bails immediately when range is disabled, so the ticker
+    -- is cheap to keep running regardless of the setting state.
+    local frameData = { frame = frame, unit = unit }
+    frameData.ticker = C_Timer.NewTicker(0.5, function()
+        UUF:UpdateRangeAlpha(frame, unit)
+    end)
 
+    table.insert(UUF.RangeEvtFrames, frameData)
     UUF:UpdateRangeAlpha(frame, unit)
 end
 
@@ -353,35 +298,26 @@ function UUF:UpdateRangeAlpha(frame, unit)
     if not frame:IsVisible() or not unit or not UnitExists(unit) then return end
     if unit == "player" then frame:SetAlpha(1) return end
 
-    local inAlpha = RangeDB.InRange or 1
+    local inAlpha  = RangeDB.InRange or 1
     local outAlpha = RangeDB.OutOfRange or 0.5
-    local inRange;
+    local inRange
 
     if UnitIsDeadOrGhost(unit) then
-        inRange = UnitInSpellsRange(unit, "resurrect")
+        inRange = CheckSpellRange(unit, "resurrect")
     elseif UnitCanAttack("player", unit) then
-        inRange = UnitInSpellsRange(unit, "enemy")
+        inRange = CheckSpellRange(unit, "enemy")
+    elseif UnitIsUnit(unit, "pet") then
+        inRange = CheckSpellRange(unit, "pet")
+    elseif UnitIsConnected(unit) then
+        inRange = CheckSpellRange(unit, "friendly")
     else
-        local isPet = UnitIsUnit(unit, "pet")
-        -- What a mess WoW API is.
-        if NotSecretValue(isPet) and isPet then
-            inRange = UnitInSpellsRange(unit, "pet")
-        elseif UnitIsConnected(unit) then
-            inRange = FriendlyIsInRange(unit)
-        else
-            inRange = false
-        end
+        inRange = false
     end
 
-    if inRange == nil then
-        inRange = true
-    end
+    if inRange == nil then inRange = true end
 
-    -- Dirty check: skip SetAlpha when the range state hasn't changed.
-    -- SPELL_UPDATE_COOLDOWN fires constantly in combat; without this every tick
-    -- called SetAlpha unconditionally on all registered frames.
     local newAlpha = inRange and inAlpha or outAlpha
-    if(newAlpha ~= frame._lastRangeAlpha) then
+    if newAlpha ~= frame._lastRangeAlpha then
         frame._lastRangeAlpha = newAlpha
         frame:SetAlpha(newAlpha)
     end

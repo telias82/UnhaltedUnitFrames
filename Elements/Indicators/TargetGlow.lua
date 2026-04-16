@@ -3,7 +3,6 @@ UUF.TargetHighlightEvtFrames = {}
 
 local unitIsTargetEvtFrame = CreateFrame("Frame")
 unitIsTargetEvtFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
-unitIsTargetEvtFrame:RegisterEvent("UNIT_TARGET")
 unitIsTargetEvtFrame:SetScript("OnEvent", function()
     for _, frameData in ipairs(UUF.TargetHighlightEvtFrames) do
         local frame, unit = frameData.frame, frameData.unit

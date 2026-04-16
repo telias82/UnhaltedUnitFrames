@@ -567,7 +567,11 @@ eventFrame:SetScript('OnEvent', function(self, event, unit)
 	end
 end)
 
-local eventTimerThreshold = 0.1
+-- Flush threshold for event-driven tags. Kept small and fixed so that tags
+-- like health/power text respond within one frame of the event firing.
+-- The user-exposed "Tag Updates Per Second" slider controls eventless frame
+-- polling (targettarget, focustarget) via SetEventUpdateTimer, not this value.
+local eventTimerThreshold = 0.05
 
 local timerFontStrings = {}
 local timerLastFired = {} -- absolute masterTime when each timer interval last fired
@@ -962,7 +966,15 @@ oUF.Tags = {
 		if(not timer) then return end
 		if(type(timer) ~= 'number') then return end
 
-		eventTimerThreshold = math.max(0.05, timer)
+		-- Do NOT touch eventTimerThreshold here. Event-driven tags (health, power,
+		-- name text) must flush quickly regardless of the slider setting.
+		-- Instead, propagate the interval to eventless frame callbacks so the slider
+		-- controls the poll rate for units like targettarget and focustarget.
+		if(Private.masterCallbacks) then
+			for _, cb in next, Private.masterCallbacks do
+				cb.interval = math.max(0.1, timer)
+			end
+		end
 	end,
 }
 

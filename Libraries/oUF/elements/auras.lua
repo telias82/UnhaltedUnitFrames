@@ -199,6 +199,10 @@ local function updateAura(element, unit, data, position)
 		element.createdButtons = element.createdButtons + 1
 	end
 
+	-- Detect slot reuse: if this button is now showing a different aura, clear
+	-- cached values so all dirty-checks below force a full refresh.
+	local slotChanged = button.auraInstanceID ~= data.auraInstanceID
+
 	-- for tooltips
 	button.auraInstanceID  = data.auraInstanceID
 	button._auraIndex      = data._auraIndex
@@ -208,10 +212,20 @@ local function updateAura(element, unit, data, position)
 		-- MoP Classic: use duration/expirationTime directly from data
 		if data.duration and data.duration > 0 then
 			local startTime = data.expirationTime - data.duration
-			button.Cooldown:SetCooldown(startTime, data.duration)
-			button.Cooldown:Show()
+			-- Only call SetCooldown when start/duration actually changed — it resets
+			-- the spiral animation which produces a visible glitch if called redundantly.
+			if slotChanged or button._lastCooldownStart ~= startTime or button._lastCooldownDuration ~= data.duration then
+				button._lastCooldownStart    = startTime
+				button._lastCooldownDuration = data.duration
+				button.Cooldown:SetCooldown(startTime, data.duration)
+				button.Cooldown:Show()
+			end
 		else
-			button.Cooldown:Hide()
+			if slotChanged or button._lastCooldownDuration ~= 0 then
+				button._lastCooldownDuration = 0
+				button._lastCooldownStart    = nil
+				button.Cooldown:Hide()
+			end
 		end
 	end
 
@@ -243,12 +257,21 @@ local function updateAura(element, unit, data, position)
 		end
 	end
 
-	if(button.Icon) then button.Icon:SetTexture(data.icon) end
+	if(button.Icon) then
+		if slotChanged or button._lastIcon ~= data.icon then
+			button._lastIcon = data.icon
+			button.Icon:SetTexture(data.icon)
+		end
+	end
 	if(button.Count) then
 		-- MoP Classic: show stack count directly
 		local count = data.applications or 0
 		local minCount = element.minCount or 2
-		button.Count:SetText(count >= minCount and count or '')
+		local countText = count >= minCount and count or ''
+		if slotChanged or button._lastCount ~= countText then
+			button._lastCount = countText
+			button.Count:SetText(countText)
+		end
 	end
 
 	local width = element.width or element.size or 16
@@ -313,8 +336,9 @@ end
 
 -- MoP Classic: C_UnitAuras does not exist. Scan with UnitBuff/UnitDebuff.
 -- Builds data tables matching the structure the display code expects.
+-- outAll tables are reused across calls to avoid per-event GC allocation pressure.
 local function scanAuras(element, unit, isHarmful, filter, outAll, outActive)
-	table.wipe(outAll)
+	-- Wipe active flags (cheap boolean table); reuse data tables in outAll.
 	table.wipe(outActive)
 	local scanFn = isHarmful and UnitDebuff or UnitBuff
 	local i = 1
@@ -323,38 +347,64 @@ local function scanAuras(element, unit, isHarmful, filter, outAll, outActive)
 			_, spellId, _, isBossAura = scanFn(unit, i)
 		if not name then break end
 		local isFromPlayer = source == "player" or source == "pet"
-		local data = {
-			name             = name,
-			icon             = icon,
-			applications     = count or 0,
-			dispelType       = debuffType or "",
-			debuffType       = debuffType or "",
-			duration         = duration or 0,
-			expirationTime   = expirationTime or 0,
-			sourceUnit       = source,
-			isStealable      = isStealable,
-			spellId          = spellId or 0,
-			isBossAura       = isBossAura,
-			-- synthetic fields used in place of auraInstanceID
-			auraInstanceID   = i,   -- use slot index as unique ID
-			isHelpful        = not isHarmful,
-			isHarmful        = isHarmful,
-			isHarmfulAura    = isHarmful,
-			isPlayerAura     = isFromPlayer,
-			_auraIndex       = i,
-			_auraIsHarmful   = isHarmful,
-		}
+		-- Reuse the existing data table at this slot rather than allocating a new one.
+		local data = outAll[i]
+		if not data then
+			data = {}
+			outAll[i] = data
+		end
+		data.name           = name
+		data.icon           = icon
+		data.applications   = count or 0
+		data.dispelType     = debuffType or ""
+		data.debuffType     = debuffType or ""
+		data.duration       = duration or 0
+		data.expirationTime = expirationTime or 0
+		data.sourceUnit     = source
+		data.isStealable    = isStealable
+		data.spellId        = spellId or 0
+		data.isBossAura     = isBossAura
+		-- synthetic fields used in place of auraInstanceID
+		data.auraInstanceID = i   -- use slot index as unique ID
+		data.isHelpful      = not isHarmful
+		data.isHarmful      = isHarmful
+		data.isHarmfulAura  = isHarmful
+		data.isPlayerAura   = isFromPlayer
+		data._auraIndex     = i
+		data._auraIsHarmful = isHarmful
 		if element.PostProcessAuraData then
-			data = element:PostProcessAuraData(unit, data, filter)
+			local processed = element:PostProcessAuraData(unit, data, filter)
+			if processed ~= data then
+				data = processed
+				outAll[i] = data
+			end
 		end
 		if data then
-			outAll[i] = data
 			if (element.FilterAura or FilterAura)(element, unit, data, filter) then
 				outActive[i] = true
 			end
+		else
+			outAll[i] = nil
 		end
 		i = i + 1
 	end
+	-- Nil out stale entries from a previous longer scan.
+	for j = i, #outAll do
+		outAll[j] = nil
+	end
+end
+
+-- Cheap fingerprint of the active-aura set (slot-index sum * 10000 + count).
+-- If this matches the stored value, the set of visible auras didn't change and
+-- we can skip the table.wipe + table.insert + table.sort rebuild of sorted[].
+-- Per-button dirty-checks in updateAura handle stack/duration changes cheaply.
+local function computeActiveFingerprint(active)
+	local sum, count = 0, 0
+	for k in next, active do
+		sum   = sum + k
+		count = count + 1
+	end
+	return sum * 10000 + count
 end
 
 local function UpdateAuras(self, event, unit, updateInfo)
@@ -392,26 +442,16 @@ local function UpdateAuras(self, event, unit, updateInfo)
 
 		local numTotal = auras.numTotal or numBuffs + numDebuffs
 
-		if(isFullUpdate) then
-			auras.allBuffs = table.wipe(auras.allBuffs or {})
-			auras.activeBuffs = table.wipe(auras.activeBuffs or {})
-			buffsChanged = true
-
-			-- MoP Classic: scan with UnitBuff/UnitDebuff
-			scanAuras(auras, unit, false, buffFilter, auras.allBuffs, auras.activeBuffs)
-
-			auras.allDebuffs = table.wipe(auras.allDebuffs or {})
-			auras.activeDebuffs = table.wipe(auras.activeDebuffs or {})
-			debuffsChanged = true
-
-			scanAuras(auras, unit, true, debuffFilter, auras.allDebuffs, auras.activeDebuffs)
-		else
-			-- MoP Classic: no incremental updateInfo; always do a full rescan
-			scanAuras(auras, unit, false, buffFilter, auras.allBuffs, auras.activeBuffs)
-			buffsChanged = true
-			scanAuras(auras, unit, true, debuffFilter, auras.allDebuffs, auras.activeDebuffs)
-			debuffsChanged = true
-		end
+		-- MoP Classic: updateInfo is always nil so isFullUpdate is always true.
+		-- scanAuras manages outAll reuse and outActive wipe internally; just ensure tables exist.
+		auras.allBuffs      = auras.allBuffs      or {}
+		auras.activeBuffs   = auras.activeBuffs   or {}
+		auras.allDebuffs    = auras.allDebuffs    or {}
+		auras.activeDebuffs = auras.activeDebuffs or {}
+		buffsChanged   = true
+		debuffsChanged = true
+		scanAuras(auras, unit, false, buffFilter,   auras.allBuffs,   auras.activeBuffs)
+		scanAuras(auras, unit, true,  debuffFilter, auras.allDebuffs, auras.activeDebuffs)
 
 		--[[ Callback: Auras:PostUpdateInfo(unit, buffsChanged, debuffsChanged)
 		Called after the aura update info has been updated and filtered, but before sorting.
@@ -579,35 +619,32 @@ local function UpdateAuras(self, event, unit, updateInfo)
 			buffFilter = buffFilter(buffs, unit)
 		end
 
-		if(isFullUpdate) then
-			buffs.all = table.wipe(buffs.all or {})
-			buffs.active = table.wipe(buffs.active or {})
-			buffsChanged = true
-
-			-- MoP Classic: scan with UnitBuff
-			scanAuras(buffs, unit, false, buffFilter, buffs.all, buffs.active)
-		else
-			-- MoP: always full rescan
-			buffs.all = table.wipe(buffs.all or {})
-			buffs.active = table.wipe(buffs.active or {})
-			scanAuras(buffs, unit, false, buffFilter, buffs.all, buffs.active)
-			buffsChanged = true
-		end
+		-- MoP Classic: scanAuras manages outAll reuse and outActive wipe internally.
+		buffs.all    = buffs.all    or {}
+		buffs.active = buffs.active or {}
+		buffsChanged = true
+		scanAuras(buffs, unit, false, buffFilter, buffs.all, buffs.active)
 
 		if(buffs.PostUpdateInfo) then
 			buffs:PostUpdateInfo(unit, buffsChanged)
 		end
 
 		if(buffsChanged) then
-			buffs.sorted = table.wipe(buffs.sorted or {})
-
-			for auraInstanceID in next, buffs.active do
-				table.insert(buffs.sorted, buffs.all[auraInstanceID])
+			-- Only rebuild the sorted array when the active set itself changed.
+			-- Stack count / duration changes are caught by per-button dirty-checks
+			-- inside updateAura without needing a resort.
+			local fingerprint = computeActiveFingerprint(buffs.active)
+			if fingerprint ~= buffs._lastActiveFingerprint then
+				buffs._lastActiveFingerprint = fingerprint
+				buffs.sorted = table.wipe(buffs.sorted or {})
+				for auraInstanceID in next, buffs.active do
+					table.insert(buffs.sorted, buffs.all[auraInstanceID])
+				end
+				table.sort(buffs.sorted, buffs.SortBuffs or buffs.SortAuras or SortAuras)
 			end
 
-			table.sort(buffs.sorted, buffs.SortBuffs or buffs.SortAuras or SortAuras)
-
-			local numVisible = math.min(numBuffs, #buffs.sorted)
+			-- Always call updateAura — per-button dirty-checks make unchanged buttons cheap.
+			local numVisible = math.min(numBuffs, #(buffs.sorted or {}))
 
 			for i = 1, numVisible do
 				updateAura(buffs, unit, buffs.sorted[i], i)
@@ -651,35 +688,30 @@ local function UpdateAuras(self, event, unit, updateInfo)
 			debuffFilter = debuffFilter(debuffs, unit)
 		end
 
-		if(isFullUpdate) then
-			debuffs.all = table.wipe(debuffs.all or {})
-			debuffs.active = table.wipe(debuffs.active or {})
-			debuffsChanged = true
-
-			-- MoP Classic: scan with UnitDebuff
-			scanAuras(debuffs, unit, true, debuffFilter, debuffs.all, debuffs.active)
-		else
-			-- MoP: always full rescan
-			debuffs.all = table.wipe(debuffs.all or {})
-			debuffs.active = table.wipe(debuffs.active or {})
-			scanAuras(debuffs, unit, true, debuffFilter, debuffs.all, debuffs.active)
-			debuffsChanged = true
-		end
+		-- MoP Classic: scanAuras manages outAll reuse and outActive wipe internally.
+		debuffs.all    = debuffs.all    or {}
+		debuffs.active = debuffs.active or {}
+		debuffsChanged = true
+		scanAuras(debuffs, unit, true, debuffFilter, debuffs.all, debuffs.active)
 
 		if(debuffs.PostUpdateInfo) then
 			debuffs:PostUpdateInfo(unit, debuffsChanged)
 		end
 
 		if(debuffsChanged) then
-			debuffs.sorted = table.wipe(debuffs.sorted or {})
-
-			for auraInstanceID in next, debuffs.active do
-				table.insert(debuffs.sorted, debuffs.all[auraInstanceID])
+			-- Only rebuild the sorted array when the active set itself changed.
+			local fingerprint = computeActiveFingerprint(debuffs.active)
+			if fingerprint ~= debuffs._lastActiveFingerprint then
+				debuffs._lastActiveFingerprint = fingerprint
+				debuffs.sorted = table.wipe(debuffs.sorted or {})
+				for auraInstanceID in next, debuffs.active do
+					table.insert(debuffs.sorted, debuffs.all[auraInstanceID])
+				end
+				table.sort(debuffs.sorted, debuffs.SortDebuffs or debuffs.SortAuras or SortAuras)
 			end
 
-			table.sort(debuffs.sorted, debuffs.SortDebuffs or debuffs.SortAuras or SortAuras)
-
-			local numVisible = math.min(numDebuffs, #debuffs.sorted)
+			-- Always call updateAura — per-button dirty-checks make unchanged buttons cheap.
+			local numVisible = math.min(numDebuffs, #(debuffs.sorted or {}))
 
 			for i = 1, numVisible do
 				updateAura(debuffs, unit, debuffs.sorted[i], i)

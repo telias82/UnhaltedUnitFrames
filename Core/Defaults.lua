@@ -7,7 +7,7 @@ local Defaults = {
     },
     profile = {
         General = {
-            TagUpdateInterval = 0.25,
+            TagUpdateInterval = 0.5,
             Separator = "||",
             ToTSeparator = "»",
             UseCustomAbbreviations = false,
