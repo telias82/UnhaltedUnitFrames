@@ -655,14 +655,19 @@ local function Disable(self)
 		element:SetScript('OnUpdate', nil)
 
 		if(self.unit == 'player' and not (self.hasChildren or self.isChild or self.isNamePlate)) then
-			for event in next, eventMethods do
-				PlayerCastingBarFrame:RegisterUnitEvent(event, 'player')
-				PetCastingBarFrame:RegisterUnitEvent(event, 'pet')
+			if PlayerCastingBarFrame then
+				for event in next, eventMethods do
+					PlayerCastingBarFrame:RegisterUnitEvent(event, 'player')
+				end
+				PlayerCastingBarFrame:RegisterEvent('PLAYER_ENTERING_WORLD')
 			end
-
-			PlayerCastingBarFrame:RegisterEvent('PLAYER_ENTERING_WORLD')
-			PetCastingBarFrame:RegisterEvent('PLAYER_ENTERING_WORLD')
-			PetCastingBarFrame:RegisterEvent('UNIT_PET')
+			if PetCastingBarFrame then
+				for event in next, eventMethods do
+					PetCastingBarFrame:RegisterUnitEvent(event, 'pet')
+				end
+				PetCastingBarFrame:RegisterEvent('PLAYER_ENTERING_WORLD')
+				PetCastingBarFrame:RegisterEvent('UNIT_PET')
+			end
 		end
 	end
 end

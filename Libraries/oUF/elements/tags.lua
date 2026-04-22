@@ -567,11 +567,13 @@ eventFrame:SetScript('OnEvent', function(self, event, unit)
 	end
 end)
 
--- Flush threshold for event-driven tags. Kept small and fixed so that tags
--- like health/power text respond within one frame of the event firing.
--- The user-exposed "Tag Updates Per Second" slider controls eventless frame
--- polling (targettarget, focustarget) via SetEventUpdateTimer, not this value.
-local eventTimerThreshold = 0.05
+-- Flush threshold for event-driven tags.
+-- 0 = flush every frame: events within one frame are still deduplicated (all
+-- dirty-mark the fontstring, one flush processes it), but there is no
+-- multi-frame batching delay and no periodic spike every N frames.
+-- In raid combat (many UNIT_HEALTH/UNIT_AURA events per frame) this eliminates
+-- the bursty 50ms stutter pattern that the old 0.05 threshold caused.
+local eventTimerThreshold = 0
 
 local timerFontStrings = {}
 local timerLastFired = {} -- absolute masterTime when each timer interval last fired

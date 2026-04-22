@@ -125,7 +125,15 @@ function UUF:UpdateUnitDispelState(unitFrame, unit)
             end
         end
     else
-        -- Fallback: direct scan (DebuffContainer disabled or not yet initialized).
+        -- Fallback: direct UnitDebuff scan (DebuffContainer debuffs are disabled).
+        -- In a raid boss fight UNIT_AURA fires constantly; throttle to at most once
+        -- per ~100 ms so we don't run a UnitDebuff loop on every single event.
+        local now = GetTime()
+        if unitFrame._dispelFallbackLast and (now - unitFrame._dispelFallbackLast) < 0.1 then
+            return
+        end
+        unitFrame._dispelFallbackLast = now
+
         local i = 1
         while true do
             local name, _, _, debuffType = UnitDebuff(unit, i)

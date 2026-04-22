@@ -8,39 +8,63 @@ local function FetchAuraDurationRegion(cooldown)
     end
 end
 
-local function ApplyAuraDuration(icon, unit)
-    local UUFDB = UUF.db.profile
-    local FontsDB = UUFDB.General.Fonts
-    local AurasDB = UUFDB.Units[UUF:GetNormalizedUnit(unit)].Auras
-    local AuraDurationDB = AurasDB.AuraDuration
-    if not icon then return end
-    -- C_Timer not available in MoP Classic; defer one frame
-    local _auraTimer = CreateFrame("Frame")
-    _auraTimer:SetScript("OnUpdate", function(self)
-        self:SetScript("OnUpdate", nil)
-        local textRegion = FetchAuraDurationRegion(icon)
-        if textRegion then
-            if AuraDurationDB.ScaleByIconSize then
-                local iconWidth = icon:GetWidth()
-                local scaleFactor = iconWidth > 0 and iconWidth / 36 or 1
-                local fontSize = AuraDurationDB.FontSize * scaleFactor
-                if fontSize < 1 then fontSize = 12 end
-                textRegion:SetFont(UUF.Media.Font, fontSize, FontsDB.FontFlag)
-            else
-                textRegion:SetFont(UUF.Media.Font, AuraDurationDB.FontSize, FontsDB.FontFlag)
-            end
-            textRegion:SetTextColor(AuraDurationDB.Colour[1], AuraDurationDB.Colour[2], AuraDurationDB.Colour[3], 1)
-            textRegion:ClearAllPoints()
-            textRegion:SetPoint(AuraDurationDB.Layout[1], icon, AuraDurationDB.Layout[2], AuraDurationDB.Layout[3], AuraDurationDB.Layout[4])
-            if UUF.db.profile.General.Fonts.Shadow.Enabled then
-                textRegion:SetShadowColor(FontsDB.Shadow.Colour[1], FontsDB.Shadow.Colour[2], FontsDB.Shadow.Colour[3], FontsDB.Shadow.Colour[4])
-                textRegion:SetShadowOffset(FontsDB.Shadow.XPos, FontsDB.Shadow.YPos)
-            else
-                textRegion:SetShadowColor(0, 0, 0, 0)
-                textRegion:SetShadowOffset(0, 0)
+-- Shared deferred frame + queue for ApplyAuraDuration.
+-- WoW frame objects created by CreateFrame are NEVER garbage-collected by Lua;
+-- the old per-call CreateFrame pattern leaked one frame per aura button created
+-- and accumulated into hundreds of orphaned frames over a session.
+-- One persistent frame is re-armed as a one-shot OnUpdate; all queued items
+-- are processed together on the next game tick.
+local _auraTimerIcons = {}
+local _auraTimerUnits = {}
+local _auraTimerFrame = CreateFrame("Frame")
+
+local function _flushAuraDurationQueue(self)
+    self:SetScript("OnUpdate", nil)
+    local db = UUF.db.profile
+    local FontsDB = db.General.Fonts
+    for i = 1, #_auraTimerIcons do
+        local icon = _auraTimerIcons[i]
+        local unit = _auraTimerUnits[i]
+        _auraTimerIcons[i] = nil
+        _auraTimerUnits[i] = nil
+        local AurasDB = db.Units[UUF:GetNormalizedUnit(unit)].Auras
+        if AurasDB then
+            local AuraDurationDB = AurasDB.AuraDuration
+            local textRegion = FetchAuraDurationRegion(icon)
+            if textRegion then
+                if AuraDurationDB.ScaleByIconSize then
+                    local iconWidth = icon:GetWidth()
+                    local scaleFactor = iconWidth > 0 and iconWidth / 36 or 1
+                    local fontSize = AuraDurationDB.FontSize * scaleFactor
+                    if fontSize < 1 then fontSize = 12 end
+                    textRegion:SetFont(UUF.Media.Font, fontSize, FontsDB.FontFlag)
+                else
+                    textRegion:SetFont(UUF.Media.Font, AuraDurationDB.FontSize, FontsDB.FontFlag)
+                end
+                textRegion:SetTextColor(AuraDurationDB.Colour[1], AuraDurationDB.Colour[2], AuraDurationDB.Colour[3], 1)
+                textRegion:ClearAllPoints()
+                textRegion:SetPoint(AuraDurationDB.Layout[1], icon, AuraDurationDB.Layout[2], AuraDurationDB.Layout[3], AuraDurationDB.Layout[4])
+                if FontsDB.Shadow.Enabled then
+                    textRegion:SetShadowColor(FontsDB.Shadow.Colour[1], FontsDB.Shadow.Colour[2], FontsDB.Shadow.Colour[3], FontsDB.Shadow.Colour[4])
+                    textRegion:SetShadowOffset(FontsDB.Shadow.XPos, FontsDB.Shadow.YPos)
+                else
+                    textRegion:SetShadowColor(0, 0, 0, 0)
+                    textRegion:SetShadowOffset(0, 0)
+                end
             end
         end
-    end)
+    end
+end
+
+local function ApplyAuraDuration(icon, unit)
+    if not icon then return end
+    local n = #_auraTimerIcons + 1
+    _auraTimerIcons[n] = icon
+    _auraTimerUnits[n] = unit
+    if n == 1 then
+        -- Re-arm the shared frame only when the queue was previously empty.
+        _auraTimerFrame:SetScript("OnUpdate", _flushAuraDurationQueue)
+    end
 end
 
 local function DecodeAuraFilterString(filterString)

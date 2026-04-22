@@ -23,7 +23,7 @@ function UUF:CreateUnitHealthBar(unitFrame, unit)
         HealthBar:SetStatusBarColor(HealthBarDB.Foreground[1], HealthBarDB.Foreground[2], HealthBarDB.Foreground[3], HealthBarDB.ForegroundOpacity)
         HealthBar.colorClass = HealthBarDB.ColourByClass
         HealthBar.colorReaction = HealthBarDB.ColourByClass
-        HealthBar.colorTapped = HealthBarDB.ColourWhenTapped
+        HealthBar.colorTapping = HealthBarDB.ColourWhenTapped
 
         if unit == "pet" and HealthBarDB.ColourByClass then
             HealthBar.colorClass = false
@@ -94,7 +94,7 @@ function UUF:UpdateUnitHealthBar(unitFrame, unit)
         unitFrame.Health:SetStatusBarColor(HealthBarDB.Foreground[1], HealthBarDB.Foreground[2], HealthBarDB.Foreground[3], HealthBarDB.ForegroundOpacity)
         unitFrame.Health.colorClass = HealthBarDB.ColourByClass
         unitFrame.Health.colorReaction = HealthBarDB.ColourByClass
-        unitFrame.Health.colorTapped = HealthBarDB.ColourWhenTapped
+        unitFrame.Health.colorTapping = HealthBarDB.ColourWhenTapped
         unitFrame.Health:SetStatusBarTexture(UUF.Media.Foreground)
         if unit == "pet" and HealthBarDB.ColourByClass then
             unitFrame.Health.colorClass = false
