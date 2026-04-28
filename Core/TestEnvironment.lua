@@ -163,7 +163,7 @@ function UUF:CreateTestBossFrames()
                         button:SetSize(BuffsDB.Size, BuffsDB.Size)
                         button.Count:ClearAllPoints()
                         button.Count:SetPoint(BuffsDB.Count.Layout[1], button, BuffsDB.Count.Layout[2], BuffsDB.Count.Layout[3], BuffsDB.Count.Layout[4])
-                        button.Count:SetFont(UUF.Media.Font, BuffsDB.Count.FontSize, General.Fonts.FontFlag)
+                        button.Count:SetFont(UUF.Media.Font, BuffsDB.Count.FontSize, UUF.Media.FontFlag)
                         if General.Fonts.Shadow.Enabled then
                             button.Count:SetShadowColor(unpack(General.Fonts.Shadow.Colour))
                             button.Count:SetShadowOffset(General.Fonts.Shadow.XPos, General.Fonts.Shadow.YPos)
@@ -194,9 +194,9 @@ function UUF:CreateTestBossFrames()
                         if AuraDurationDB.ScaleByIconSize then
                             local iconWidth = button:GetWidth()
                             local scaleFactor = iconWidth / 36
-                            button.Duration:SetFont(UUF.Media.Font, AuraDurationDB.FontSize * scaleFactor, General.Fonts.FontFlag)
+                            button.Duration:SetFont(UUF.Media.Font, AuraDurationDB.FontSize * scaleFactor, UUF.Media.FontFlag)
                         else
-                            button.Duration:SetFont(UUF.Media.Font, AuraDurationDB.FontSize, General.Fonts.FontFlag)
+                            button.Duration:SetFont(UUF.Media.Font, AuraDurationDB.FontSize, UUF.Media.FontFlag)
                         end
                         if General.Fonts.Shadow.Enabled then
                             button.Duration:SetShadowColor(unpack(General.Fonts.Shadow.Colour))
@@ -246,7 +246,7 @@ function UUF:CreateTestBossFrames()
                         button:SetSize(DebuffsDB.Size, DebuffsDB.Size)
                         button.Count:ClearAllPoints()
                         button.Count:SetPoint(DebuffsDB.Count.Layout[1], button, DebuffsDB.Count.Layout[2], DebuffsDB.Count.Layout[3], DebuffsDB.Count.Layout[4])
-                        button.Count:SetFont(UUF.Media.Font, DebuffsDB.Count.FontSize, General.Fonts.FontFlag)
+                        button.Count:SetFont(UUF.Media.Font, DebuffsDB.Count.FontSize, UUF.Media.FontFlag)
                         if General.Fonts.Shadow.Enabled then
                             button.Count:SetShadowColor(unpack(General.Fonts.Shadow.Colour))
                             button.Count:SetShadowOffset(General.Fonts.Shadow.XPos, General.Fonts.Shadow.YPos)
@@ -276,9 +276,9 @@ function UUF:CreateTestBossFrames()
                         if AuraDurationDB.ScaleByIconSize then
                             local iconWidth = button:GetWidth()
                             local scaleFactor = iconWidth / 36
-                            button.Duration:SetFont(UUF.Media.Font, AuraDurationDB.FontSize * scaleFactor, General.Fonts.FontFlag)
+                            button.Duration:SetFont(UUF.Media.Font, AuraDurationDB.FontSize * scaleFactor, UUF.Media.FontFlag)
                         else
-                            button.Duration:SetFont(UUF.Media.Font, AuraDurationDB.FontSize, General.Fonts.FontFlag)
+                            button.Duration:SetFont(UUF.Media.Font, AuraDurationDB.FontSize, UUF.Media.FontFlag)
                         end
                         if General.Fonts.Shadow.Enabled then
                             button.Duration:SetShadowColor(unpack(General.Fonts.Shadow.Colour))
@@ -316,7 +316,7 @@ function UUF:CreateTestBossFrames()
                 local TagOneDB = TagsDB.TagOne
                 BossFrame.Tags.TagOne:ClearAllPoints()
                 BossFrame.Tags.TagOne:SetPoint(TagOneDB.Layout[1], BossFrame, TagOneDB.Layout[2], TagOneDB.Layout[3], TagOneDB.Layout[4])
-                BossFrame.Tags.TagOne:SetFont(UUF.Media.Font, TagOneDB.FontSize, General.Fonts.FontFlag)
+                BossFrame.Tags.TagOne:SetFont(UUF.Media.Font, TagOneDB.FontSize, UUF.Media.FontFlag)
                 if General.Fonts.Shadow.Enabled then
                     BossFrame.Tags.TagOne:SetShadowColor(unpack(General.Fonts.Shadow.Colour))
                     BossFrame.Tags.TagOne:SetShadowOffset(General.Fonts.Shadow.XPos, General.Fonts.Shadow.YPos)
@@ -332,7 +332,7 @@ function UUF:CreateTestBossFrames()
                 local TagTwoDB = TagsDB.TagTwo
                 BossFrame.Tags.TagTwo:ClearAllPoints()
                 BossFrame.Tags.TagTwo:SetPoint(TagTwoDB.Layout[1], BossFrame, TagTwoDB.Layout[2], TagTwoDB.Layout[3], TagTwoDB.Layout[4])
-                BossFrame.Tags.TagTwo:SetFont(UUF.Media.Font, TagTwoDB.FontSize, General.Fonts.FontFlag)
+                BossFrame.Tags.TagTwo:SetFont(UUF.Media.Font, TagTwoDB.FontSize, UUF.Media.FontFlag)
                 if General.Fonts.Shadow.Enabled then
                     BossFrame.Tags.TagTwo:SetShadowColor(unpack(General.Fonts.Shadow.Colour))
                     BossFrame.Tags.TagTwo:SetShadowOffset(General.Fonts.Shadow.XPos, General.Fonts.Shadow.YPos)
@@ -348,7 +348,7 @@ function UUF:CreateTestBossFrames()
                 local TagThreeDB = TagsDB.TagThree
                 BossFrame.Tags.TagThree:ClearAllPoints()
                 BossFrame.Tags.TagThree:SetPoint(TagThreeDB.Layout[1], BossFrame, TagThreeDB.Layout[2], TagThreeDB.Layout[3], TagThreeDB.Layout[4])
-                BossFrame.Tags.TagThree:SetFont(UUF.Media.Font, TagThreeDB.FontSize, General.Fonts.FontFlag)
+                BossFrame.Tags.TagThree:SetFont(UUF.Media.Font, TagThreeDB.FontSize, UUF.Media.FontFlag)
                 if General.Fonts.Shadow.Enabled then
                     BossFrame.Tags.TagThree:SetShadowColor(unpack(General.Fonts.Shadow.Colour))
                     BossFrame.Tags.TagThree:SetShadowOffset(General.Fonts.Shadow.XPos, General.Fonts.Shadow.YPos)

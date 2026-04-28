@@ -23,9 +23,9 @@ local function ApplyAuraDuration(icon, unit)
                 local scaleFactor = iconWidth > 0 and iconWidth / 36 or 1
                 local fontSize = TotemsDurationDB.FontSize * scaleFactor
                 if fontSize < 1 then fontSize = 12 end
-                textRegion:SetFont(UUF.Media.Font, fontSize, FontsDB.FontFlag)
+                textRegion:SetFont(UUF.Media.Font, fontSize, UUF.Media.FontFlag)
             else
-                textRegion:SetFont(UUF.Media.Font, TotemsDurationDB.FontSize, FontsDB.FontFlag)
+                textRegion:SetFont(UUF.Media.Font, TotemsDurationDB.FontSize, UUF.Media.FontFlag)
             end
             textRegion:SetTextColor(TotemsDurationDB.Colour[1], TotemsDurationDB.Colour[2], TotemsDurationDB.Colour[3], 1)
             textRegion:ClearAllPoints()

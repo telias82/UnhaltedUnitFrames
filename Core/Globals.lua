@@ -92,6 +92,17 @@ function UUF:FetchFrameName(unit)
     return UnitToFrame[unit]
 end
 
+local _canFlagSlug
+local function CanFlagSlug()
+    if _canFlagSlug ~= nil then return _canFlagSlug end
+    local probe = UIParent:CreateFontString(nil, "ARTWORK")
+    probe:SetFont(STANDARD_TEXT_FONT, 12, "SLUG")
+    local _, _, flags = probe:GetFont()
+    _canFlagSlug = flags ~= nil and flags:find("SLUG") ~= nil
+    probe:Hide()
+    return _canFlagSlug
+end
+
 function UUF:ResolveLSM()
     local LSM = UUF.LSM
     local General = UUF.db.profile.General
@@ -99,6 +110,12 @@ function UUF:ResolveLSM()
     UUF.Media.Font = LSM:Fetch("font", General.Fonts.Font) or STANDARD_TEXT_FONT
     UUF.Media.Foreground = LSM:Fetch("statusbar", General.Textures.Foreground) or "Interface\\RaidFrame\\Raid-Bar-Hp-Fill"
     UUF.Media.Background = LSM:Fetch("statusbar", General.Textures.Background) or "Interface\\Buttons\\WHITE8X8"
+    local rawFlag = General.Fonts.FontFlag
+    if General.Fonts.EnableSlug and CanFlagSlug() and rawFlag ~= "" and rawFlag ~= "NONE" then
+        UUF.Media.FontFlag = rawFlag .. " SLUG"
+    else
+        UUF.Media.FontFlag = rawFlag
+    end
 end
 
 function UUF:Capitalize(STR)

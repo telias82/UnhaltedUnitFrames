@@ -1,5 +1,8 @@
 local _, UUF = ...
 
+local INTERP_SMOOTH    = Enum and Enum.StatusBarInterpolation and Enum.StatusBarInterpolation.ExponentialEaseOut or 0
+local INTERP_IMMEDIATE = Enum and Enum.StatusBarInterpolation and Enum.StatusBarInterpolation.Immediate        or 0
+
 function UUF:CreateUnitHealthBar(unitFrame, unit)
     local FrameDB = UUF.db.profile.Units[UUF:GetNormalizedUnit(unit)].Frame
     local HealthBarDB = UUF.db.profile.Units[UUF:GetNormalizedUnit(unit)].HealthBar
@@ -24,6 +27,7 @@ function UUF:CreateUnitHealthBar(unitFrame, unit)
         HealthBar.colorClass = HealthBarDB.ColourByClass
         HealthBar.colorReaction = HealthBarDB.ColourByClass
         HealthBar.colorTapping = HealthBarDB.ColourWhenTapped
+        HealthBar.smoothing = HealthBarDB.Smooth and INTERP_SMOOTH or INTERP_IMMEDIATE
 
         if unit == "pet" and HealthBarDB.ColourByClass then
             HealthBar.colorClass = false
@@ -38,7 +42,7 @@ function UUF:CreateUnitHealthBar(unitFrame, unit)
 
         unitFrame.Health = HealthBar
 
-        unitFrame.Health.PostUpdate = function(_, _, curHP, maxHP)
+        unitFrame.Health.PostUpdate = function(bar, _, curHP, maxHP)
             local unitHP = unitFrame.HealthBackground
             maxHP = maxHP or 1
             curHP = curHP or 0
@@ -50,7 +54,7 @@ function UUF:CreateUnitHealthBar(unitFrame, unit)
             local missing = maxHP - curHP
             if(missing ~= unitHP._lastMissing) then
                 unitHP._lastMissing = missing
-                unitHP:SetValue(missing) -- MoP: UnitHealthMissing doesn't exist
+                unitHP:SetValue(missing, HealthBarDB.Smooth and INTERP_SMOOTH or INTERP_IMMEDIATE)
             end
             if HealthBarDB.ColourBackgroundByClass then
                 local unitToColour = unitFrame.unit ~= "pet" and unitFrame.unit or "player"
@@ -90,6 +94,7 @@ function UUF:UpdateUnitHealthBar(unitFrame, unit)
     end
 
     if unitFrame.Health then
+        unitFrame.Health.smoothing = HealthBarDB.Smooth and INTERP_SMOOTH or INTERP_IMMEDIATE
         unitFrame.Health:SetSize(FrameDB.Width - 2, FrameDB.Height - 2)
         unitFrame.Health:SetStatusBarColor(HealthBarDB.Foreground[1], HealthBarDB.Foreground[2], HealthBarDB.Foreground[3], HealthBarDB.ForegroundOpacity)
         unitFrame.Health.colorClass = HealthBarDB.ColourByClass

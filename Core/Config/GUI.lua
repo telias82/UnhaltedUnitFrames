@@ -306,6 +306,13 @@ local function CreateFontSettings(containerParent)
     FontFlagDropdown:SetCallback("OnValueChanged", function(widget, _, value) widget:SetValue(value) UUF.db.profile.General.Fonts.FontFlag = value UUF:ResolveLSM() UUF:UpdateAllUnitFrames() end)
     Container:AddChild(FontFlagDropdown)
 
+    local SlugCheckBox = AG:Create("CheckBox")
+    SlugCheckBox:SetLabel("Grayscale AA (SLUG)")
+    SlugCheckBox:SetValue(UUF.db.profile.General.Fonts.EnableSlug)
+    SlugCheckBox:SetRelativeWidth(0.5)
+    SlugCheckBox:SetCallback("OnValueChanged", function(_, _, value) UUF.db.profile.General.Fonts.EnableSlug = value UUF:ResolveLSM() UUF:UpdateAllUnitFrames() end)
+    Container:AddChild(SlugCheckBox)
+
     local SimpleGroup = AG:Create("SimpleGroup")
     SimpleGroup:SetFullWidth(true)
     SimpleGroup:SetLayout("Flow")
@@ -693,6 +700,13 @@ local function CreateFrameSettings(containerParent, unit, unitHasParent, updateC
     InverseGrowthDirectionToggle:SetCallback("OnValueChanged", function(_, _, value) HealthBarDB.Inverse = value updateCallback() end)
     InverseGrowthDirectionToggle:SetRelativeWidth((unit == "player" or unit == "target") and 0.33 or 0.5)
     ColourContainer:AddChild(InverseGrowthDirectionToggle)
+
+    local SmoothAnimationToggle = AG:Create("CheckBox")
+    SmoothAnimationToggle:SetLabel("Smooth Animation")
+    SmoothAnimationToggle:SetValue(HealthBarDB.Smooth)
+    SmoothAnimationToggle:SetCallback("OnValueChanged", function(_, _, value) HealthBarDB.Smooth = value updateCallback() end)
+    SmoothAnimationToggle:SetRelativeWidth((unit == "player" or unit == "target") and 0.33 or 0.5)
+    ColourContainer:AddChild(SmoothAnimationToggle)
 
     if unit == "player" or unit == "target" then
         local AnchorToCooldownViewerToggle = AG:Create("CheckBox")

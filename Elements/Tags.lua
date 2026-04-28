@@ -6,7 +6,7 @@ local function CreateUnitTag(unitFrame, unit, tagDB)
 
     if not unitFrame.Tags[tagDB] then
         unitFrame.Tags[tagDB] = unitFrame.HighLevelContainer:CreateFontString(UUF:FetchFrameName(unit) .. "_" .. tagDB, "ARTWORK")
-        unitFrame.Tags[tagDB]:SetFont(UUF.Media.Font, TagDB.FontSize, GeneralDB.Fonts.FontFlag)
+        unitFrame.Tags[tagDB]:SetFont(UUF.Media.Font, TagDB.FontSize, UUF.Media.FontFlag)
         unitFrame.Tags[tagDB]:SetVertexColor(TagDB.Colour[1], TagDB.Colour[2], TagDB.Colour[3], 1)
         if GeneralDB.Fonts.Shadow.Enabled then
             unitFrame.Tags[tagDB]:SetShadowColor(GeneralDB.Fonts.Shadow.Colour[1], GeneralDB.Fonts.Shadow.Colour[2], GeneralDB.Fonts.Shadow.Colour[3], GeneralDB.Fonts.Shadow.Colour[4])
@@ -26,7 +26,7 @@ function UUF:UpdateUnitTag(unitFrame, unit, tagDB)
     local TagDB = UUF.db.profile.Units[UUF:GetNormalizedUnit(unit)].Tags[tagDB]
 
     if unitFrame.Tags[tagDB] then
-        unitFrame.Tags[tagDB]:SetFont(UUF.Media.Font, TagDB.FontSize, GeneralDB.Fonts.FontFlag)
+        unitFrame.Tags[tagDB]:SetFont(UUF.Media.Font, TagDB.FontSize, UUF.Media.FontFlag)
         unitFrame.Tags[tagDB]:SetVertexColor(TagDB.Colour[1], TagDB.Colour[2], TagDB.Colour[3], 1)
         if GeneralDB.Fonts.Shadow.Enabled then
             unitFrame.Tags[tagDB]:SetShadowColor(GeneralDB.Fonts.Shadow.Colour[1], GeneralDB.Fonts.Shadow.Colour[2], GeneralDB.Fonts.Shadow.Colour[3], GeneralDB.Fonts.Shadow.Colour[4])
