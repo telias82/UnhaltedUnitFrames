@@ -39,20 +39,20 @@ local Tags = {
     ["absorbs:truncate"] = "UNIT_ABSORB_AMOUNT_CHANGED",
     ["maxhp:abbr"] = "UNIT_HEALTH UNIT_MAXHEALTH",
 
-    ["curpp:colour"] = "UNIT_POWER_UPDATE UNIT_MAXPOWER",
+    ["curpp:color"] = "UNIT_POWER_UPDATE UNIT_MAXPOWER",
     ["curpp:abbr"] = "UNIT_POWER_UPDATE UNIT_MAXPOWER",
-    ["curpp:abbr:colour"] = "UNIT_POWER_UPDATE UNIT_MAXPOWER",
+    ["curpp:abbr:color"] = "UNIT_POWER_UPDATE UNIT_MAXPOWER",
     ["curpp:manapercent"] = "UNIT_POWER_UPDATE UNIT_MAXPOWER",
     ["curpp:manapercent:abbr"] = "UNIT_POWER_UPDATE UNIT_MAXPOWER",
     ["curpp:manapercent-with-sign"] = "UNIT_POWER_UPDATE UNIT_MAXPOWER",
     ["curpp:manapercent-with-sign:abbr"] = "UNIT_POWER_UPDATE UNIT_MAXPOWER",
 
     ["maxpp:abbr"] = "UNIT_POWER_UPDATE UNIT_MAXPOWER",
-    ["maxpp:colour"] = "UNIT_POWER_UPDATE UNIT_MAXPOWER",
-    ["maxpp:abbr:colour"] = "UNIT_POWER_UPDATE UNIT_MAXPOWER",
+    ["maxpp:color"] = "UNIT_POWER_UPDATE UNIT_MAXPOWER",
+    ["maxpp:abbr:color"] = "UNIT_POWER_UPDATE UNIT_MAXPOWER",
 
-    ["name:colour"] = "UNIT_CLASSIFICATION_CHANGED UNIT_FACTION UNIT_NAME_UPDATE",
-    ["maxhp:abbr:colour"] = "UNIT_HEALTH UNIT_MAXHEALTH",
+    ["name:color"] = "UNIT_CLASSIFICATION_CHANGED UNIT_FACTION UNIT_NAME_UPDATE",
+    ["maxhp:abbr:color"] = "UNIT_HEALTH UNIT_MAXHEALTH",
 }
 
 for i = 1, 25 do
@@ -60,7 +60,7 @@ for i = 1, 25 do
 end
 
 for i = 1, 25 do
-    Tags["name:short:" .. i .. ":colour"] = "UNIT_NAME_UPDATE"
+    Tags["name:short:" .. i .. ":color"] = "UNIT_NAME_UPDATE"
 end
 
 UUF.SEPARATOR_TAGS = {
@@ -132,12 +132,12 @@ for tagString, tagEvents in pairs(Tags) do
     oUF.Tags.Events[tagString] = (oUF.Tags.Events[tagString] and (oUF.Tags.Events[tagString] .. " ") or "") .. tagEvents
 end
 
-local function FetchUnitPowerColour(unit)
+local function FetchUnitPowerColor(unit)
     local powerType = UnitPowerType(unit)
-    local powerColour = powerType and UUF.db.profile.General.Colours.Power[powerType]
-    if powerColour then
-        local powerColourR, powerColourG, powerColourB = unpack(powerColour)
-        return powerColourR, powerColourG, powerColourB
+    local powerColor = powerType and UUF.db.profile.General.Colors.Power[powerType]
+    if powerColor then
+        local powerColorR, powerColorG, powerColorB = unpack(powerColor)
+        return powerColorR, powerColorG, powerColorB
     end
     return 1, 1, 1
 end
@@ -261,21 +261,21 @@ end
 
 
 
-oUF.Tags.Methods["curpp:colour"] = function(unit)
+oUF.Tags.Methods["curpp:color"] = function(unit)
     if not unit or not UnitExists(unit) then return "" end
-    local powerColourR, powerColourG, powerColourB = FetchUnitPowerColour(unit)
+    local powerColorR, powerColorG, powerColorB = FetchUnitPowerColor(unit)
     local unitPower = UnitPower(unit)
     if unitPower then
-        return string.format("|cff%02x%02x%02x%s|r", powerColourR * 255, powerColourG * 255, powerColourB * 255, unitPower)
+        return string.format("|cff%02x%02x%02x%s|r", powerColorR * 255, powerColorG * 255, powerColorB * 255, unitPower)
     end
 end
 
-oUF.Tags.Methods["maxpp:colour"] = function(unit)
+oUF.Tags.Methods["maxpp:color"] = function(unit)
     if not unit or not UnitExists(unit) then return "" end
-    local powerColourR, powerColourG, powerColourB = FetchUnitPowerColour(unit)
+    local powerColorR, powerColorG, powerColorB = FetchUnitPowerColor(unit)
     local unitPowerMax = UnitPowerMax(unit)
     if unitPowerMax then
-        return string.format("|cff%02x%02x%02x%s|r", powerColourR * 255, powerColourG * 255, powerColourB * 255, unitPowerMax)
+        return string.format("|cff%02x%02x%02x%s|r", powerColorR * 255, powerColorG * 255, powerColorB * 255, unitPowerMax)
     end
 end
 
@@ -348,21 +348,21 @@ oUF.Tags.Methods["maxpp:abbr"] = function(unit)
     end
 end
 
-oUF.Tags.Methods["curpp:abbr:colour"] = function(unit)
+oUF.Tags.Methods["curpp:abbr:color"] = function(unit)
     if not unit or not UnitExists(unit) then return "" end
-    local powerColourR, powerColourG, powerColourB = FetchUnitPowerColour(unit)
+    local powerColorR, powerColorG, powerColorB = FetchUnitPowerColor(unit)
     local unitPower = UnitPower(unit)
     if unitPower then
-        return string.format("|cff%02x%02x%02x%s|r", powerColourR * 255, powerColourG * 255, powerColourB * 255, AbbreviateValue(unitPower))
+        return string.format("|cff%02x%02x%02x%s|r", powerColorR * 255, powerColorG * 255, powerColorB * 255, AbbreviateValue(unitPower))
     end
 end
 
-oUF.Tags.Methods["maxpp:abbr:colour"] = function(unit)
+oUF.Tags.Methods["maxpp:abbr:color"] = function(unit)
     if not unit or not UnitExists(unit) then return "" end
-    local powerColourR, powerColourG, powerColourB = FetchUnitPowerColour(unit)
+    local powerColorR, powerColorG, powerColorB = FetchUnitPowerColor(unit)
     local unitPowerMax = UnitPowerMax(unit)
     if unitPowerMax then
-        return string.format("|cff%02x%02x%02x%s|r", powerColourR * 255, powerColourG * 255, powerColourB * 255, AbbreviateValue(unitPowerMax))
+        return string.format("|cff%02x%02x%02x%s|r", powerColorR * 255, powerColorG * 255, powerColorB * 255, AbbreviateValue(unitPowerMax))
     end
 end
 
@@ -374,19 +374,19 @@ oUF.Tags.Methods["maxhp:abbr"] = function(unit)
     end
 end
 
-oUF.Tags.Methods["maxhp:abbr:colour"] = function(unit)
+oUF.Tags.Methods["maxhp:abbr:color"] = function(unit)
     if not unit or not UnitExists(unit) then return "" end
-    local classColourR, classColourG, classColourB = UUF:GetUnitColour(unit)
+    local classColorR, classColorG, classColorB = UUF:GetUnitColor(unit)
     local unitMaxHealth = UnitHealthMax(unit)
     if unitMaxHealth then
-        return string.format("|cff%02x%02x%02x%s|r", classColourR * 255, classColourG * 255, classColourB * 255, AbbreviateValue(unitMaxHealth))
+        return string.format("|cff%02x%02x%02x%s|r", classColorR * 255, classColorG * 255, classColorB * 255, AbbreviateValue(unitMaxHealth))
     end
 end
 
-oUF.Tags.Methods["name:colour"] = function(unit)
-    local classColourR, classColourG, classColourB = UUF:GetUnitColour(unit)
+oUF.Tags.Methods["name:color"] = function(unit)
+    local classColorR, classColorG, classColorB = UUF:GetUnitColor(unit)
     local unitName = UnitName(unit) or ""
-    return string.format("|cff%02x%02x%02x%s|r", classColourR * 255, classColourG * 255, classColourB * 255, unitName)
+    return string.format("|cff%02x%02x%02x%s|r", classColorR * 255, classColorG * 255, classColorB * 255, unitName)
 end
 
 oUF.Tags.Methods["resetcolor"] = function(unit)
@@ -406,10 +406,10 @@ for i = 1, 25 do
     oUF.Tags.Methods["name:short:" .. i] = function(unit) return ShortenUnitName(unit, i) end
 end
 for i = 1, 25 do
-    oUF.Tags.Methods["name:short:" .. i .. ":colour"] = function(unit)
-        local classColourR, classColourG, classColourB = UUF:GetUnitColour(unit)
+    oUF.Tags.Methods["name:short:" .. i .. ":color"] = function(unit)
+        local classColorR, classColorG, classColorB = UUF:GetUnitColor(unit)
         local shortenedName = ShortenUnitName(unit, i)
-        return string.format("|cff%02x%02x%02x%s|r", classColourR * 255, classColourG * 255, classColourB * 255, shortenedName)
+        return string.format("|cff%02x%02x%02x%s|r", classColorR * 255, classColorG * 255, classColorB * 255, shortenedName)
     end
 end
 
@@ -449,13 +449,13 @@ local PowerTags = {
     {
         ["perpp"] = "Percentage Power",
         ["curpp"] = "Current Power",
-        ["curpp:colour"] = "Current Power with Colour",
+        ["curpp:color"] = "Current Power with Color",
         ["curpp:abbr"] = "Current Power with Abbreviation",
-        ["curpp:abbr:colour"] = "Current Power with Abbreviation and Colour",
+        ["curpp:abbr:color"] = "Current Power with Abbreviation and Color",
         ["maxpp"] = "Maximum Power",
         ["maxpp:abbr"] = "Maximum Power with Abbreviation",
-        ["maxpp:colour"] = "Maximum Power with Colour",
-        ["maxpp:abbr:colour"] = "Maximum Power with Abbreviation and Colour",
+        ["maxpp:color"] = "Maximum Power with Color",
+        ["maxpp:abbr:color"] = "Maximum Power with Abbreviation and Color",
         ["missingpp"] = "Missing Power",
         ["curpp:manapercent"] = "Current Power but Mana as Percentage",
         ["curpp:manapercent:abbr"] = "Current Power but Mana as Percentage with Abbreviation",
@@ -465,15 +465,15 @@ local PowerTags = {
     {
         "perpp",
         "curpp",
-        "curpp:colour",
+        "curpp:color",
         "curpp:abbr",
-        "curpp:abbr:colour",
+        "curpp:abbr:color",
         "curpp:manapercent",
         "curpp:manapercent:abbr",
         "maxpp",
         "maxpp:abbr",
-        "maxpp:colour",
-        "maxpp:abbr:colour",
+        "maxpp:color",
+        "maxpp:abbr:color",
         "missingpp",
     }
 }
@@ -481,15 +481,15 @@ local PowerTags = {
 local NameTags = {
     {
         ["name"] = "Unit Name",
-        ["name:colour"] = "Unit Name with Colour",
+        ["name:color"] = "Unit Name with Color",
         ["name:short:10"] = "Unit Name Shortened (1 - 25 Chars)",
-        ["name:short:10:colour"] = "Unit Name Shortened (1 - 25 Chars) with Colour",
+        ["name:short:10:color"] = "Unit Name Shortened (1 - 25 Chars) with Color",
     },
     {
         "name",
-        "name:colour",
+        "name:color",
         "name:short:10",
-        "name:short:10:colour",
+        "name:short:10:color",
     }
 }
 
@@ -500,10 +500,10 @@ local MiscTags = {
         ["creature"] = "Creature Type",
         ["group"] = "Group Number",
         ["level"] = "Unit Level",
-        ["powercolor"] = "Unit Power Colour - Prefix",
-        ["raidcolor"] = "Unit Class Colour - Prefix",
+        ["powercolor"] = "Unit Power Color - Prefix",
+        ["raidcolor"] = "Unit Class Color - Prefix",
         ["class"] = "Unit Class",
-        ["resetcolor"] = "Resets Colour Prefix",
+        ["resetcolor"] = "Resets Color Prefix",
     },
     {
         "classification",
