@@ -5,7 +5,7 @@ local function CreateUnitAbsorbs(unitFrame, unit)
     if not unitFrame.Health then return end
 
     local AbsorbBar = CreateFrame("StatusBar", UUF:FetchFrameName(unit) .. "_AbsorbBar", unitFrame.Health)
-    if AbsorbDB.UseStripedTexture then AbsorbBar:SetStatusBarTexture("Interface\\AddOns\\UnhaltedUnitFrames\\Media\\Textures\\Atrocity.tga") else AbsorbBar:SetStatusBarTexture(AbsorbDB.Texture and UUF.LSM:Fetch("statusbar", AbsorbDB.Texture) or "Interface\\RaidFrame\\Shield-Fill") end
+    AbsorbBar:SetStatusBarTexture("Interface\\AddOns\\UnhaltedUnitFrames\\Media\\Textures\\Atrocity.tga")
     AbsorbBar:SetStatusBarColor(AbsorbDB.Colour[1], AbsorbDB.Colour[2], AbsorbDB.Colour[3], AbsorbDB.Colour[4])
     AbsorbBar:ClearAllPoints()
     if AbsorbDB.Position == "RIGHT" then
@@ -38,6 +38,14 @@ local function CreateUnitAbsorbs(unitFrame, unit)
     AbsorbBar:SetFrameLevel(unitFrame.Health:GetFrameLevel() + 1)
     AbsorbBar:Show()
 
+    local stripeOverlay = AbsorbBar:CreateTexture(nil, "OVERLAY")
+    stripeOverlay:SetTexture("Interface\\RaidFrame\\Shield-Overlay")
+    stripeOverlay:SetHorizTile(true)
+    stripeOverlay:SetVertTile(false)
+    stripeOverlay:SetAllPoints(AbsorbBar:GetStatusBarTexture())
+    stripeOverlay:SetShown(AbsorbDB.UseStripedTexture)
+    AbsorbBar.StripeOverlay = stripeOverlay
+
     return AbsorbBar
 end
 
@@ -46,7 +54,7 @@ local function CreateUnitHealAbsorbs(unitFrame, unit)
     if not unitFrame.Health then return end
 
     local HealAbsorbBar = CreateFrame("StatusBar", UUF:FetchFrameName(unit) .. "_HealAbsorbBar", unitFrame.Health)
-    if HealAbsorbDB.UseStripedTexture then HealAbsorbBar:SetStatusBarTexture("Interface\\AddOns\\UnhaltedUnitFrames\\Media\\Textures\\Atrocity.tga") else HealAbsorbBar:SetStatusBarTexture(HealAbsorbDB.Texture and UUF.LSM:Fetch("statusbar", HealAbsorbDB.Texture) or "Interface\\RaidFrame\\Absorb-Fill") end
+    HealAbsorbBar:SetStatusBarTexture("Interface\\AddOns\\UnhaltedUnitFrames\\Media\\Textures\\Atrocity.tga")
     HealAbsorbBar:SetStatusBarColor(HealAbsorbDB.Colour[1], HealAbsorbDB.Colour[2], HealAbsorbDB.Colour[3], HealAbsorbDB.Colour[4])
     HealAbsorbBar:ClearAllPoints()
     if HealAbsorbDB.Position == "RIGHT" then
@@ -78,15 +86,20 @@ local function CreateUnitHealAbsorbs(unitFrame, unit)
     HealAbsorbBar:SetFrameLevel(unitFrame.Health:GetFrameLevel() + 1)
     HealAbsorbBar:Show()
 
+    local stripeOverlay = HealAbsorbBar:CreateTexture(nil, "OVERLAY")
+    stripeOverlay:SetTexture("Interface\\RaidFrame\\Shield-Overlay")
+    stripeOverlay:SetHorizTile(true)
+    stripeOverlay:SetVertTile(false)
+    stripeOverlay:SetAllPoints(HealAbsorbBar:GetStatusBarTexture())
+    stripeOverlay:SetShown(HealAbsorbDB.UseStripedTexture)
+    HealAbsorbBar.StripeOverlay = stripeOverlay
+
     return HealAbsorbBar
 end
 
 function UUF:CreateUnitHealPrediction(unitFrame, unit)
     local AbsorbDB = UUF.db.profile.Units[UUF:GetNormalizedUnit(unit)].HealPrediction.Absorbs
     local HealAbsorbDB = UUF.db.profile.Units[UUF:GetNormalizedUnit(unit)].HealPrediction.HealAbsorbs
-
-    CreateUnitAbsorbs(unitFrame, unit)
-    CreateUnitHealAbsorbs(unitFrame, unit)
 
     unitFrame.HealthPrediction = {
         damageAbsorb = AbsorbDB.Enabled and CreateUnitAbsorbs(unitFrame, unit),
@@ -106,8 +119,11 @@ function UUF:UpdateUnitHealPrediction(unitFrame, unit)
             unitFrame.HealthPrediction.damageAbsorb = unitFrame.HealthPrediction.damageAbsorb or CreateUnitAbsorbs(unitFrame, unit)
             unitFrame.HealthPrediction.damageAbsorbClampMode = 2
             unitFrame.HealthPrediction.damageAbsorb:Show()
-            if AbsorbDB.UseStripedTexture then unitFrame.HealthPrediction.damageAbsorb:SetStatusBarTexture("Interface\\AddOns\\UnhaltedUnitFrames\\Media\\Textures\\Atrocity.tga") else unitFrame.HealthPrediction.damageAbsorb:SetStatusBarTexture(AbsorbDB.Texture and UUF.LSM:Fetch("statusbar", AbsorbDB.Texture) or "Interface\\RaidFrame\\Shield-Fill") end
+            unitFrame.HealthPrediction.damageAbsorb:SetStatusBarTexture("Interface\\AddOns\\UnhaltedUnitFrames\\Media\\Textures\\Atrocity.tga")
             unitFrame.HealthPrediction.damageAbsorb:SetStatusBarColor(AbsorbDB.Colour[1], AbsorbDB.Colour[2], AbsorbDB.Colour[3], AbsorbDB.Colour[4])
+            if unitFrame.HealthPrediction.damageAbsorb.StripeOverlay then
+                unitFrame.HealthPrediction.damageAbsorb.StripeOverlay:SetShown(AbsorbDB.UseStripedTexture)
+            end
             unitFrame.HealthPrediction.damageAbsorb:ClearAllPoints()
             if AbsorbDB.Position == "RIGHT" then
                 unitFrame.HealthPrediction.damageAbsorb:SetPoint("TOPRIGHT", unitFrame.Health, "TOPRIGHT", 0, 0)
@@ -151,8 +167,11 @@ function UUF:UpdateUnitHealPrediction(unitFrame, unit)
             unitFrame.HealthPrediction.healAbsorb = unitFrame.HealthPrediction.healAbsorb or CreateUnitHealAbsorbs(unitFrame, unit)
             unitFrame.HealthPrediction.healAbsorbClampMode = 1
             unitFrame.HealthPrediction.healAbsorb:Show()
-            if HealAbsorbDB.UseStripedTexture then unitFrame.HealthPrediction.healAbsorb:SetStatusBarTexture("Interface\\AddOns\\UnhaltedUnitFrames\\Media\\Textures\\Atrocity.tga") else unitFrame.HealthPrediction.healAbsorb:SetStatusBarTexture(HealAbsorbDB.Texture and UUF.LSM:Fetch("statusbar", HealAbsorbDB.Texture) or "Interface\\RaidFrame\\Absorb-Fill") end
+            unitFrame.HealthPrediction.healAbsorb:SetStatusBarTexture("Interface\\AddOns\\UnhaltedUnitFrames\\Media\\Textures\\Atrocity.tga")
             unitFrame.HealthPrediction.healAbsorb:SetStatusBarColor(HealAbsorbDB.Colour[1], HealAbsorbDB.Colour[2], HealAbsorbDB.Colour[3], HealAbsorbDB.Colour[4])
+            if unitFrame.HealthPrediction.healAbsorb.StripeOverlay then
+                unitFrame.HealthPrediction.healAbsorb.StripeOverlay:SetShown(HealAbsorbDB.UseStripedTexture)
+            end
             unitFrame.HealthPrediction.healAbsorb:ClearAllPoints()
             if HealAbsorbDB.Position == "RIGHT" then
                 unitFrame.HealthPrediction.healAbsorb:SetPoint("TOPRIGHT", unitFrame.Health, "TOPRIGHT", 0, 0)
