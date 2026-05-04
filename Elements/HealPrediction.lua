@@ -1,5 +1,44 @@
 local _, UUF = ...
 
+local function SetupStripeOverlay(bar, healthBar, show, isReverse)
+    local clipFrame = CreateFrame("Frame", nil, bar)
+    clipFrame:SetFrameLevel(bar:GetFrameLevel() + 1)
+    clipFrame:SetWidth(0.01)
+
+    if isReverse then
+        clipFrame:SetPoint("TOPRIGHT", bar, "TOPRIGHT")
+        clipFrame:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT")
+    else
+        clipFrame:SetPoint("TOPLEFT", bar, "TOPLEFT")
+        clipFrame:SetPoint("BOTTOMLEFT", bar, "BOTTOMLEFT")
+    end
+
+    local stripeTexture = clipFrame:CreateTexture(nil, "OVERLAY")
+    stripeTexture:SetTexture("Interface\\RaidFrame\\Shield-Overlay")
+    stripeTexture:SetAllPoints(clipFrame)
+
+    clipFrame:SetShown(show)
+    bar.StripeClipFrame = clipFrame
+
+    local function refreshStripe(self)
+        local cf = self.StripeClipFrame
+        if not cf then return end
+        local lo, hi = self:GetMinMaxValues()
+        local w = healthBar:GetWidth()
+        local val = self:GetValue()
+        if not cf:IsShown() or w <= 0 or hi <= lo or val <= lo then
+            cf:SetWidth(0.01)
+            return
+        end
+        local pct = (val - lo) / (hi - lo)
+        cf:SetWidth(math.max(0.01, w * pct))
+    end
+
+    bar:HookScript("OnValueChanged", function(self) refreshStripe(self) end)
+    bar:HookScript("OnSizeChanged",  function(self) refreshStripe(self) end)
+    bar.RefreshStripe = refreshStripe
+end
+
 local function CreateUnitAbsorbs(unitFrame, unit)
     local AbsorbDB = UUF.db.profile.Units[UUF:GetNormalizedUnit(unit)].HealPrediction.Absorbs
     if not unitFrame.Health then return end
@@ -38,13 +77,7 @@ local function CreateUnitAbsorbs(unitFrame, unit)
     AbsorbBar:SetFrameLevel(unitFrame.Health:GetFrameLevel() + 1)
     AbsorbBar:Show()
 
-    local stripeOverlay = AbsorbBar:CreateTexture(nil, "OVERLAY")
-    stripeOverlay:SetTexture("Interface\\RaidFrame\\Shield-Overlay")
-    stripeOverlay:SetHorizTile(true)
-    stripeOverlay:SetVertTile(false)
-    stripeOverlay:SetAllPoints(AbsorbBar:GetStatusBarTexture())
-    stripeOverlay:SetShown(AbsorbDB.UseStripedTexture)
-    AbsorbBar.StripeOverlay = stripeOverlay
+    SetupStripeOverlay(AbsorbBar, unitFrame.Health, AbsorbDB.UseStripedTexture, AbsorbBar:GetReverseFill())
 
     return AbsorbBar
 end
@@ -86,13 +119,7 @@ local function CreateUnitHealAbsorbs(unitFrame, unit)
     HealAbsorbBar:SetFrameLevel(unitFrame.Health:GetFrameLevel() + 1)
     HealAbsorbBar:Show()
 
-    local stripeOverlay = HealAbsorbBar:CreateTexture(nil, "OVERLAY")
-    stripeOverlay:SetTexture("Interface\\RaidFrame\\Shield-Overlay")
-    stripeOverlay:SetHorizTile(true)
-    stripeOverlay:SetVertTile(false)
-    stripeOverlay:SetAllPoints(HealAbsorbBar:GetStatusBarTexture())
-    stripeOverlay:SetShown(HealAbsorbDB.UseStripedTexture)
-    HealAbsorbBar.StripeOverlay = stripeOverlay
+    SetupStripeOverlay(HealAbsorbBar, unitFrame.Health, HealAbsorbDB.UseStripedTexture, HealAbsorbBar:GetReverseFill())
 
     return HealAbsorbBar
 end
@@ -110,6 +137,14 @@ function UUF:CreateUnitHealPrediction(unitFrame, unit)
     }
 end
 
+local function updateAbsorbStripe(bar, healthBar, useStripe)
+    if not bar or not bar.StripeClipFrame then return end
+    bar.StripeClipFrame:SetShown(useStripe)
+    if useStripe and bar.RefreshStripe then
+        bar.RefreshStripe(bar)
+    end
+end
+
 function UUF:UpdateUnitHealPrediction(unitFrame, unit)
     local AbsorbDB = UUF.db.profile.Units[UUF:GetNormalizedUnit(unit)].HealPrediction.Absorbs
     local HealAbsorbDB = UUF.db.profile.Units[UUF:GetNormalizedUnit(unit)].HealPrediction.HealAbsorbs
@@ -121,9 +156,7 @@ function UUF:UpdateUnitHealPrediction(unitFrame, unit)
             unitFrame.HealthPrediction.damageAbsorb:Show()
             unitFrame.HealthPrediction.damageAbsorb:SetStatusBarTexture("Interface\\AddOns\\UnhaltedUnitFrames\\Media\\Textures\\Atrocity.tga")
             unitFrame.HealthPrediction.damageAbsorb:SetStatusBarColor(AbsorbDB.Colour[1], AbsorbDB.Colour[2], AbsorbDB.Colour[3], AbsorbDB.Colour[4])
-            if unitFrame.HealthPrediction.damageAbsorb.StripeOverlay then
-                unitFrame.HealthPrediction.damageAbsorb.StripeOverlay:SetShown(AbsorbDB.UseStripedTexture)
-            end
+            updateAbsorbStripe(unitFrame.HealthPrediction.damageAbsorb, unitFrame.Health, AbsorbDB.UseStripedTexture)
             unitFrame.HealthPrediction.damageAbsorb:ClearAllPoints()
             if AbsorbDB.Position == "RIGHT" then
                 unitFrame.HealthPrediction.damageAbsorb:SetPoint("TOPRIGHT", unitFrame.Health, "TOPRIGHT", 0, 0)
@@ -169,9 +202,7 @@ function UUF:UpdateUnitHealPrediction(unitFrame, unit)
             unitFrame.HealthPrediction.healAbsorb:Show()
             unitFrame.HealthPrediction.healAbsorb:SetStatusBarTexture("Interface\\AddOns\\UnhaltedUnitFrames\\Media\\Textures\\Atrocity.tga")
             unitFrame.HealthPrediction.healAbsorb:SetStatusBarColor(HealAbsorbDB.Colour[1], HealAbsorbDB.Colour[2], HealAbsorbDB.Colour[3], HealAbsorbDB.Colour[4])
-            if unitFrame.HealthPrediction.healAbsorb.StripeOverlay then
-                unitFrame.HealthPrediction.healAbsorb.StripeOverlay:SetShown(HealAbsorbDB.UseStripedTexture)
-            end
+            updateAbsorbStripe(unitFrame.HealthPrediction.healAbsorb, unitFrame.Health, HealAbsorbDB.UseStripedTexture)
             unitFrame.HealthPrediction.healAbsorb:ClearAllPoints()
             if HealAbsorbDB.Position == "RIGHT" then
                 unitFrame.HealthPrediction.healAbsorb:SetPoint("TOPRIGHT", unitFrame.Health, "TOPRIGHT", 0, 0)
