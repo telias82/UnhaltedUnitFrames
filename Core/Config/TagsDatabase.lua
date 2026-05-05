@@ -376,7 +376,7 @@ end
 
 oUF.Tags.Methods["maxhp:abbr:color"] = function(unit)
     if not unit or not UnitExists(unit) then return "" end
-    local classColorR, classColorG, classColorB = UUF:GetUnitColor(unit)
+    local classColorR, classColorG, classColorB = UUF:GetUnitColour(unit)
     local unitMaxHealth = UnitHealthMax(unit)
     if unitMaxHealth then
         return string.format("|cff%02x%02x%02x%s|r", classColorR * 255, classColorG * 255, classColorB * 255, AbbreviateValue(unitMaxHealth))
@@ -384,7 +384,7 @@ oUF.Tags.Methods["maxhp:abbr:color"] = function(unit)
 end
 
 oUF.Tags.Methods["name:color"] = function(unit)
-    local classColorR, classColorG, classColorB = UUF:GetUnitColor(unit)
+    local classColorR, classColorG, classColorB = UUF:GetUnitColour(unit)
     local unitName = UnitName(unit) or ""
     return string.format("|cff%02x%02x%02x%s|r", classColorR * 255, classColorG * 255, classColorB * 255, unitName)
 end
@@ -407,7 +407,7 @@ for i = 1, 25 do
 end
 for i = 1, 25 do
     oUF.Tags.Methods["name:short:" .. i .. ":color"] = function(unit)
-        local classColorR, classColorG, classColorB = UUF:GetUnitColor(unit)
+        local classColorR, classColorG, classColorB = UUF:GetUnitColour(unit)
         local shortenedName = ShortenUnitName(unit, i)
         return string.format("|cff%02x%02x%02x%s|r", classColorR * 255, classColorG * 255, classColorB * 255, shortenedName)
     end
