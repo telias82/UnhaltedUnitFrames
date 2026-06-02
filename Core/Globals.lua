@@ -26,9 +26,10 @@ UUF.AG = LibStub("AceGUI-3.0")
 UUF.LD = LibStub("LibDispel-1.0")
 UUF.BACKDROP = { bgFile = "Interface\\Buttons\\WHITE8X8", edgeFile = "Interface\\Buttons\\WHITE8X8", edgeSize = 1, insets = {left = 0, right = 0, top = 0, bottom = 0} }
 UUF.INFOBUTTON = "|TInterface\\AddOns\\UnhaltedUnitFrames\\Media\\Textures\\InfoButton.png:16:16|t "
-UUF.ADDON_NAME = GetAddOnMetadata("UnhaltedUnitFrames", "Title")
-UUF.ADDON_VERSION = GetAddOnMetadata("UnhaltedUnitFrames", "Version")
-UUF.ADDON_AUTHOR = GetAddOnMetadata("UnhaltedUnitFrames", "Author")
+local _GetAddOnMetadata = (C_AddOns and C_AddOns.GetAddOnMetadata) or GetAddOnMetadata
+UUF.ADDON_NAME = _GetAddOnMetadata("UnhaltedUnitFrames", "Title")
+UUF.ADDON_VERSION = _GetAddOnMetadata("UnhaltedUnitFrames", "Version")
+UUF.ADDON_AUTHOR = _GetAddOnMetadata("UnhaltedUnitFrames", "Author")
 UUF.ADDON_LOGO = "|TInterface\\AddOns\\UnhaltedUnitFrames\\Media\\Textures\\Logo:11:12|t"
 UUF.PRETTY_ADDON_NAME = UUF.ADDON_LOGO .. " " .. UUF.ADDON_NAME
 
@@ -112,7 +113,7 @@ function UUF:ResolveLSM()
     UUF.Media.Background = LSM:Fetch("statusbar", General.Textures.Background) or "Interface\\Buttons\\WHITE8X8"
     local rawFlag = General.Fonts.FontFlag
     if General.Fonts.EnableSlug and CanFlagSlug() and rawFlag ~= "" and rawFlag ~= "NONE" then
-        UUF.Media.FontFlag = rawFlag .. " SLUG"
+        UUF.Media.FontFlag = rawFlag .. ",SLUG"
     else
         UUF.Media.FontFlag = rawFlag
     end
@@ -219,7 +220,8 @@ function UUF:LoadCustomColours()
 end
 
 local function AddAnchorsToBCDM()
-    if not IsAddOnLoaded("BetterCooldownManager") then return end
+    local _IsAddOnLoaded = (C_AddOns and C_AddOns.IsAddOnLoaded) or IsAddOnLoaded
+    if not _IsAddOnLoaded("BetterCooldownManager") then return end
     local UUF_Anchors = {
         ["UUF_Player"] = "|cFF8080FFUnhalted|rUnitFrames: Player Frame",
         ["UUF_Target"] = "|cFF8080FFUnhalted|rUnitFrames: Target Frame",

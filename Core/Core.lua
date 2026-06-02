@@ -1,4 +1,5 @@
 local _, UUF = ...
+_G.UUF = UUF
 local UnhaltedUnitFrames = LibStub("AceAddon-3.0"):NewAddon("UnhaltedUnitFrames")
 
 function UnhaltedUnitFrames:OnInitialize()
