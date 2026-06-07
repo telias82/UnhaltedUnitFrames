@@ -3322,6 +3322,12 @@ function UUF:CreateGUI()
 
             ScrollFrame:DoLayout()
         end
+        for _, ext in ipairs(UUF.GUITabExtensions or {}) do
+            if MainTab == ext.tab.value then
+                ext.render(Wrapper)
+                break
+            end
+        end
         if MainTab == "Boss" then EnableBossFramesTestMode() else DisableBossFramesTestMode() end
         GenerateSupportText(Container)
     end
@@ -3329,7 +3335,7 @@ function UUF:CreateGUI()
     local ContainerTabGroup = AG:Create("TabGroup")
     ContainerTabGroup:SetLayout("Flow")
     ContainerTabGroup:SetFullWidth(true)
-    ContainerTabGroup:SetTabs({
+    local mainTabs = {
         { text = "General", value = "General"},
         { text = "Global", value = "Global"},
         { text = "Player", value = "Player"},
@@ -3341,7 +3347,11 @@ function UUF:CreateGUI()
         { text = "Boss", value = "Boss"},
         { text = "Tags", value = "Tags"},
         { text = "Profiles", value = "Profiles"},
-    })
+    }
+    for _, ext in ipairs(UUF.GUITabExtensions or {}) do
+        table.insert(mainTabs, ext.tab)
+    end
+    ContainerTabGroup:SetTabs(mainTabs)
     ContainerTabGroup:SetCallback("OnGroupSelected", SelectTab)
     ContainerTabGroup:SelectTab("General")
     Container:AddChild(ContainerTabGroup)

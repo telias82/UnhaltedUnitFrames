@@ -14,6 +14,7 @@ local function UUF_GetSpecialization()
 end
 
 UUFG = UUFG or {}
+UUF.GUITabExtensions = UUF.GUITabExtensions or {}
 UUF.AURA_TEST_MODE = false
 UUF.CASTBAR_TEST_MODE = false
 UUF.BOSS_TEST_MODE = false
