@@ -325,7 +325,7 @@ function UUF:CreateTestBossFrames()
                     BossFrame.Tags.TagOne:SetShadowOffset(0, 0)
                 end
                 BossFrame.Tags.TagOne:SetTextColor(unpack(TagOneDB.Colour))
-                BossFrame.Tags.TagOne:SetText(EnvironmenTestData[i].name)
+                BossFrame.Tags.TagOne:SetText(TagOneDB.Tag ~= "" and EnvironmenTestData[i].name or "")
             end
 
             if BossFrame.Tags.TagTwo then
@@ -341,7 +341,7 @@ function UUF:CreateTestBossFrames()
                     BossFrame.Tags.TagTwo:SetShadowOffset(0, 0)
                 end
                 BossFrame.Tags.TagTwo:SetTextColor(unpack(TagTwoDB.Colour))
-                BossFrame.Tags.TagTwo:SetText(string.format("%.1f%%", EnvironmenTestData[i].percent))
+                BossFrame.Tags.TagTwo:SetText(TagTwoDB.Tag ~= "" and string.format("%.1f%%", EnvironmenTestData[i].percent) or "")
             end
 
             if BossFrame.Tags.TagThree then
@@ -357,7 +357,7 @@ function UUF:CreateTestBossFrames()
                     BossFrame.Tags.TagThree:SetShadowOffset(0, 0)
                 end
                 BossFrame.Tags.TagThree:SetTextColor(unpack(TagThreeDB.Colour))
-                BossFrame.Tags.TagThree:SetText(EnvironmenTestData[i].power)
+                BossFrame.Tags.TagThree:SetText(TagThreeDB.Tag ~= "" and EnvironmenTestData[i].power or "")
             end
         end
     else

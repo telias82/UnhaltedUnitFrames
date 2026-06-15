@@ -3179,7 +3179,19 @@ function UUF:CreateGUI()
     Container:SetWidth(1100)
     Container:SetHeight(600)
     Container:EnableResize(false)
-    Container:SetCallback("OnClose", function(widget) AG:Release(widget) isGUIOpen = false DisableAllTestModes() end)
+    Container:SetCallback("OnClose", function(widget)
+        for _, ext in ipairs(UUF.GUITabExtensions or {}) do
+            if ext.onHide then ext.onHide() end
+        end
+        AG:Release(widget)
+        isGUIOpen = false
+        DisableAllTestModes()
+    end)
+
+    _G["UUFConfigFrame"] = Container.frame
+    if not tContains(UISpecialFrames, "UUFConfigFrame") then
+        tinsert(UISpecialFrames, "UUFConfigFrame")
+    end
 
     local function SelectTab(GUIContainer, _, MainTab)
         GUIContainer:ReleaseChildren()
@@ -3325,7 +3337,9 @@ function UUF:CreateGUI()
         for _, ext in ipairs(UUF.GUITabExtensions or {}) do
             if MainTab == ext.tab.value then
                 ext.render(Wrapper)
-                break
+                if ext.onShow then ext.onShow() end
+            else
+                if ext.onHide then ext.onHide() end
             end
         end
         if MainTab == "Boss" then EnableBossFramesTestMode() else DisableBossFramesTestMode() end

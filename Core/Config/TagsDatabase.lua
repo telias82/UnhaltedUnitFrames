@@ -32,6 +32,7 @@ local Tags = {
     ["curhp:abbr"] = "UNIT_HEALTH UNIT_MAXHEALTH",
     ["curhpperhp"] = "UNIT_HEALTH UNIT_MAXHEALTH",
     ["curhpperhp:abbr"] = "UNIT_HEALTH UNIT_MAXHEALTH",
+    ["perhpcurhp:abbr"] = "UNIT_HEALTH UNIT_MAXHEALTH",
     ["perhp:absorb"] = "UNIT_HEALTH UNIT_MAXHEALTH UNIT_ABSORB_AMOUNT_CHANGED",
     ["curhpperhp:absorb"] = "UNIT_HEALTH UNIT_MAXHEALTH UNIT_ABSORB_AMOUNT_CHANGED",
     ["absorbs"] = "UNIT_ABSORB_AMOUNT_CHANGED",
@@ -61,6 +62,14 @@ end
 
 for i = 1, 25 do
     Tags["name:short:" .. i .. ":color"] = "UNIT_NAME_UPDATE"
+end
+
+for i = 1, 25 do
+    Tags["name:trunc:" .. i] = "UNIT_NAME_UPDATE"
+end
+
+for i = 1, 25 do
+    Tags["name:trunc:" .. i .. ":color"] = "UNIT_NAME_UPDATE"
 end
 
 UUF.SEPARATOR_TAGS = {
@@ -218,6 +227,29 @@ oUF.Tags.Methods["curhpperhp:abbr"] = function(unit)
             return string.format("%s %s %.0f%%", AbbreviateValue(unitHealth), UUF.SEPARATOR, unitHealthPercent)
         end
     end
+end
+
+oUF.Tags.Methods["perhpcurhp:abbr"] = function(unit)
+    if not unit or not UnitExists(unit) then return "" end
+    local unitHealth = UnitHealth(unit)
+    local unitMaxHealth = UnitHealthMax(unit)
+    local unitStatus = UnitIsDead(unit) and "Dead" or UnitIsGhost(unit) and "Ghost" or not UnitIsConnected(unit) and "Offline"
+    if unitStatus then
+        return unitStatus
+    end
+    if unitMaxHealth > 0 then
+        local pct = unitHealth / unitMaxHealth * 100
+        if UUF.SEPARATOR == "[]" then
+            return string.format("[%.0f%%] %s", pct, AbbreviateValue(unitHealth))
+        elseif UUF.SEPARATOR == "()" then
+            return string.format("(%.0f%%) %s", pct, AbbreviateValue(unitHealth))
+        elseif UUF.SEPARATOR == " " then
+            return string.format("%.0f%% %s", pct, AbbreviateValue(unitHealth))
+        else
+            return string.format("%.0f%% %s %s", pct, UUF.SEPARATOR, AbbreviateValue(unitHealth))
+        end
+    end
+    return ""
 end
 
 oUF.Tags.Methods["absorbs"] = function(unit)
@@ -413,6 +445,26 @@ for i = 1, 25 do
     end
 end
 
+local function TruncateUnitName(unit, maxChars)
+    if not unit or not UnitExists(unit) then return "" end
+    local unitName = UnitName(unit) or ""
+    if maxChars and maxChars > 0 and #unitName > maxChars then
+        return string.format("%." .. maxChars .. "s", unitName) .. "..."
+    end
+    return unitName
+end
+
+for i = 1, 25 do
+    oUF.Tags.Methods["name:trunc:" .. i] = function(unit) return TruncateUnitName(unit, i) end
+end
+for i = 1, 25 do
+    oUF.Tags.Methods["name:trunc:" .. i .. ":color"] = function(unit)
+        local classColorR, classColorG, classColorB = UUF:GetUnitColour(unit)
+        local truncatedName = TruncateUnitName(unit, i)
+        return string.format("|cff%02x%02x%02x%s|r", classColorR * 255, classColorG * 255, classColorB * 255, truncatedName)
+    end
+end
+
 local HealthTags = {
     {
         ["curhp"] = "Current Health",
@@ -420,6 +472,7 @@ local HealthTags = {
         ["perhp"] = "Percentage Health",
         ["curhpperhp"] = "Current Health and Percentage",
         ["curhpperhp:abbr"] = "Current Health and Percentage with Abbreviation",
+        ["perhpcurhp:abbr"] = "Percentage and Current Health with Abbreviation",
         ["maxhp:abbr"] = "Maximum Health with Abbreviation",
         ["absorbs"] = "Total Absorbs",
         ["absorbs:abbr"] = "Total Absorbs with Abbreviation",
@@ -434,6 +487,7 @@ local HealthTags = {
         "perhp",
         "curhpperhp",
         "curhpperhp:abbr",
+        "perhpcurhp:abbr",
         "maxhp:abbr",
         "absorbs",
         "absorbs:abbr",
@@ -484,12 +538,16 @@ local NameTags = {
         ["name:color"] = "Unit Name with Color",
         ["name:short:10"] = "Unit Name Shortened (1 - 25 Chars)",
         ["name:short:10:color"] = "Unit Name Shortened (1 - 25 Chars) with Color",
+        ["name:trunc:10"] = "Unit Name Truncated with Ellipsis (1 - 25 Chars)",
+        ["name:trunc:10:color"] = "Unit Name Truncated with Ellipsis (1 - 25 Chars) with Color",
     },
     {
         "name",
         "name:color",
         "name:short:10",
         "name:short:10:color",
+        "name:trunc:10",
+        "name:trunc:10:color",
     }
 }
 

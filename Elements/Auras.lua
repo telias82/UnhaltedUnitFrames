@@ -231,12 +231,12 @@ local function CreateUnitBuffs(unitFrame, unit)
         unitFrame.BuffContainer.spacing = BuffsDB.Layout[5]
         unitFrame.BuffContainer.num = BuffsDB.Num
         unitFrame.BuffContainer.initialAnchor = BuffsDB.Layout[1]
-        unitFrame.BuffContainer.onlyShowPlayer = BuffsDB.OnlyShowPlayer
         unitFrame.BuffContainer["growthX"] = BuffsDB.GrowthDirection
         unitFrame.BuffContainer["growthY"] = BuffsDB.WrapDirection
         local buffFilter = NormalizeAuraFilter(BuffsDB.Filter, "HELPFUL", UUF.AURA_FILTERS and UUF.AURA_FILTERS.Buffs)
         BuffsDB.Filter = EncodeAuraFilterStringForStorage(buffFilter)
         unitFrame.BuffContainer.filter = buffFilter
+        unitFrame.BuffContainer.onlyShowPlayer = BuffsDB.OnlyShowPlayer or (buffFilter:find("PLAYER") ~= nil)
         unitFrame.BuffContainer.PostCreateButton = function(_, button) StyleAuras(_, button, unit, "HELPFUL") end
         unitFrame.BuffContainer.anchoredButtons = 0
         unitFrame.BuffContainer.createdButtons = 0
@@ -270,12 +270,12 @@ local function CreateUnitDebuffs(unitFrame, unit)
         unitFrame.DebuffContainer.spacing = DebuffsDB.Layout[5]
         unitFrame.DebuffContainer.num = DebuffsDB.Num
         unitFrame.DebuffContainer.initialAnchor = DebuffsDB.Layout[1]
-        unitFrame.DebuffContainer.onlyShowPlayer = DebuffsDB.OnlyShowPlayer
         unitFrame.DebuffContainer["growthX"] = DebuffsDB.GrowthDirection
         unitFrame.DebuffContainer["growthY"] = DebuffsDB.WrapDirection
         local debuffFilter = NormalizeAuraFilter(DebuffsDB.Filter, "HARMFUL", UUF.AURA_FILTERS and UUF.AURA_FILTERS.Debuffs)
         DebuffsDB.Filter = EncodeAuraFilterStringForStorage(debuffFilter)
         unitFrame.DebuffContainer.filter = debuffFilter
+        unitFrame.DebuffContainer.onlyShowPlayer = DebuffsDB.OnlyShowPlayer or (debuffFilter:find("PLAYER") ~= nil)
         unitFrame.DebuffContainer.anchoredButtons = 0
         unitFrame.DebuffContainer.createdButtons = 0
         unitFrame.DebuffContainer.PostCreateButton = function(_, button) StyleAuras(_, button, unit, "HARMFUL") end
@@ -317,12 +317,12 @@ function UUF:UpdateUnitAuras(unitFrame, unit)
         unitFrame.BuffContainer.spacing = BuffsDB.Layout[5]
         unitFrame.BuffContainer.num = BuffsDB.Num
         unitFrame.BuffContainer.initialAnchor = BuffsDB.Layout[1]
-        unitFrame.BuffContainer.onlyShowPlayer = BuffsDB.OnlyShowPlayer
         unitFrame.BuffContainer["growthX"] = BuffsDB.GrowthDirection
         unitFrame.BuffContainer["growthY"] = BuffsDB.WrapDirection
         local buffFilter = NormalizeAuraFilter(BuffsDB.Filter, "HELPFUL", UUF.AURA_FILTERS and UUF.AURA_FILTERS.Buffs)
         BuffsDB.Filter = EncodeAuraFilterStringForStorage(buffFilter)
         unitFrame.BuffContainer.filter = buffFilter
+        unitFrame.BuffContainer.onlyShowPlayer = BuffsDB.OnlyShowPlayer or (buffFilter:find("PLAYER") ~= nil)
         unitFrame.BuffContainer.createdButtons = unitFrame.Buffs.createdButtons or 0
         unitFrame.BuffContainer.anchoredButtons = unitFrame.Buffs.anchoredButtons or 0
         unitFrame.BuffContainer.PostCreateButton = function(_, button) StyleAuras(_, button, unit, "HELPFUL") end
@@ -348,12 +348,12 @@ function UUF:UpdateUnitAuras(unitFrame, unit)
         unitFrame.DebuffContainer.spacing = DebuffsDB.Layout[5]
         unitFrame.DebuffContainer.num = DebuffsDB.Num
         unitFrame.DebuffContainer.initialAnchor = DebuffsDB.Layout[1]
-        unitFrame.DebuffContainer.onlyShowPlayer = DebuffsDB.OnlyShowPlayer
         unitFrame.DebuffContainer["growthX"] = DebuffsDB.GrowthDirection
         unitFrame.DebuffContainer["growthY"] = DebuffsDB.WrapDirection
         local debuffFilter = NormalizeAuraFilter(DebuffsDB.Filter, "HARMFUL", UUF.AURA_FILTERS and UUF.AURA_FILTERS.Debuffs)
         DebuffsDB.Filter = EncodeAuraFilterStringForStorage(debuffFilter)
         unitFrame.DebuffContainer.filter = debuffFilter
+        unitFrame.DebuffContainer.onlyShowPlayer = DebuffsDB.OnlyShowPlayer or (debuffFilter:find("PLAYER") ~= nil)
         unitFrame.DebuffContainer.createdButtons = unitFrame.Debuffs.createdButtons or 0
         unitFrame.DebuffContainer.anchoredButtons = unitFrame.Debuffs.anchoredButtons or 0
         unitFrame.DebuffContainer.PostCreateButton = function(_, button) StyleAuras(_, button, unit, "HARMFUL") end
