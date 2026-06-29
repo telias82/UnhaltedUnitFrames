@@ -427,11 +427,11 @@ function UUF:UpdateHealthBarLayout(unitFrame, unit)
         and SecondaryPowerBarDB.Enabled
         and (unitFrame.Runes or unitFrame.ClassPower)
 
-    if hasSecondaryPower then
+    if hasSecondaryPower and not SecondaryPowerBarDB.Detached then
         topOffset = topOffset - SecondaryPowerBarDB.Height - 1
     end
 
-    if PowerBarDB and PowerBarDB.Enabled then
+    if PowerBarDB and PowerBarDB.Enabled and not PowerBarDB.Detached then
         bottomOffset = bottomOffset + PowerBarDB.Height + 1
     end
 

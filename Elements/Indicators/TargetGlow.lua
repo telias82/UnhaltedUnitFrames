@@ -3,6 +3,7 @@ UUF.TargetHighlightEvtFrames = {}
 
 local unitIsTargetEvtFrame = CreateFrame("Frame")
 unitIsTargetEvtFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
+unitIsTargetEvtFrame:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
 unitIsTargetEvtFrame:SetScript("OnEvent", function()
     for _, frameData in ipairs(UUF.TargetHighlightEvtFrames) do
         local frame, unit = frameData.frame, frameData.unit
@@ -15,7 +16,7 @@ end)
 function UUF:CreateUnitTargetGlowIndicator(unitFrame, unit)
     local TargetIndicatorDB = UUF.db.profile.Units[unit].Indicators.Target
     if TargetIndicatorDB then
-        unitFrame.TargetIndicator = CreateFrame("Frame", UUF:FetchFrameName(unit).."_TargetIndicator", unitFrame.Container, "BackdropTemplate")
+        unitFrame.TargetIndicator = CreateFrame("Frame", nil, unitFrame.Container, "BackdropTemplate")
         unitFrame.TargetIndicator:SetFrameLevel(unitFrame.Container:GetFrameLevel() + 3)
         unitFrame.TargetIndicator:SetBackdrop({ edgeFile = "Interface\\AddOns\\UnhaltedUnitFrames\\Media\\Textures\\Glow.tga", edgeSize = 3, insets = {left = -3, right = -3, top = -3, bottom = -3} })
         unitFrame.TargetIndicator:SetBackdropColor(0, 0, 0, 0)
@@ -81,5 +82,8 @@ function UUF:RegisterTargetGlowIndicatorFrame(frameName, unit)
             else
                 unitFrame.TargetIndicator:SetAlpha(0)
             end
+            unitFrame:HookScript("OnShow", function(frame)
+                UUF:UpdateTargetGlowIndicator(frame, unit)
+            end)
     end
 end

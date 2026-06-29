@@ -2,7 +2,7 @@
 Slider Widget
 Graphical Slider, like, for Range values.
 -------------------------------------------------------------------------------]]
-local Type, Version = "Slider", 23
+local Type, Version = "Slider", 25
 local AceGUI = LibStub and LibStub("AceGUI-3.0", true)
 if not AceGUI or (AceGUI:GetWidgetVersion(Type) or 0) >= Version then return end
 
@@ -103,8 +103,17 @@ local function EditBox_OnEnterPressed(frame)
 	end
 
 	if value then
+		-- Round manual entry to hundredths regardless of slider step
+		value = floor(value * 100 + 0.5) / 100
+		value = min(max(value, self.min or 0), self.max or 100)
 		PlaySound(856) -- SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON
+		-- Bypass Slider_OnValueChanged step-rounding via setup flag
+		self.slider.setup = true
 		self.slider:SetValue(value)
+		self.slider.setup = nil
+		self.value = value
+		UpdateText(self)
+		self:Fire("OnValueChanged", value)
 		self:Fire("OnMouseUp", value)
 	end
 end

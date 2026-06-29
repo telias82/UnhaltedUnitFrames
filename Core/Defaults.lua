@@ -132,6 +132,24 @@ local Defaults = {
                     Smooth = true,
                     Inverse = false,
                     BackgroundMultiplier = 0.75,
+                    Detached = false,
+                    DetachedX = 0,
+                    DetachedY = -200,
+                    DetachedWidth = 200,
+                    PowerBarTags = {
+                        PowerBarTagOne = {
+                            FontSize = 10,
+                            Layout = {"CENTER", "CENTER", 0, 0},
+                            Colour = {1, 1, 1},
+                            Tag = "",
+                        },
+                        PowerBarTagTwo = {
+                            FontSize = 10,
+                            Layout = {"RIGHT", "RIGHT", -3, 0},
+                            Colour = {1, 1, 1},
+                            Tag = "",
+                        },
+                    },
                 },
                 SecondaryPowerBar = {
                     Enabled = false,
@@ -139,6 +157,24 @@ local Defaults = {
                     ColourByType = true,
                     Foreground = {8/255, 8/255, 8/255},
                     Background = {128/255, 128/255, 128/255},
+                    Detached = false,
+                    DetachedX = 0,
+                    DetachedY = 200,
+                    DetachedWidth = 200,
+                    PowerBarTags = {
+                        PowerBarTagOne = {
+                            FontSize = 10,
+                            Layout = {"CENTER", "CENTER", 0, 0},
+                            Colour = {1, 1, 1},
+                            Tag = "",
+                        },
+                        PowerBarTagTwo = {
+                            FontSize = 10,
+                            Layout = {"RIGHT", "RIGHT", -3, 0},
+                            Colour = {1, 1, 1},
+                            Tag = "",
+                        },
+                    },
                 },
                 AlternativePowerBar = {
                     Enabled = true,
@@ -364,6 +400,24 @@ local Defaults = {
                     Smooth = true,
                     Inverse = false,
                     BackgroundMultiplier = 0.75,
+                    Detached = false,
+                    DetachedX = 0,
+                    DetachedY = -200,
+                    DetachedWidth = 200,
+                    PowerBarTags = {
+                        PowerBarTagOne = {
+                            FontSize = 10,
+                            Layout = {"CENTER", "CENTER", 0, 0},
+                            Colour = {1, 1, 1},
+                            Tag = "",
+                        },
+                        PowerBarTagTwo = {
+                            FontSize = 10,
+                            Layout = {"RIGHT", "RIGHT", -3, 0},
+                            Colour = {1, 1, 1},
+                            Tag = "",
+                        },
+                    },
                 },
                 CastBar = {
                     Enabled = true,
@@ -566,6 +620,24 @@ local Defaults = {
                     Smooth = true,
                     Inverse = false,
                     BackgroundMultiplier = 0.75,
+                    Detached = false,
+                    DetachedX = 0,
+                    DetachedY = -200,
+                    DetachedWidth = 200,
+                    PowerBarTags = {
+                        PowerBarTagOne = {
+                            FontSize = 10,
+                            Layout = {"CENTER", "CENTER", 0, 0},
+                            Colour = {1, 1, 1},
+                            Tag = "",
+                        },
+                        PowerBarTagTwo = {
+                            FontSize = 10,
+                            Layout = {"RIGHT", "RIGHT", -3, 0},
+                            Colour = {1, 1, 1},
+                            Tag = "",
+                        },
+                    },
                 },
                 -- CastBar = {
                 --     Enabled = false,
@@ -755,6 +827,24 @@ local Defaults = {
                     Smooth = true,
                     Inverse = false,
                     BackgroundMultiplier = 0.75,
+                    Detached = false,
+                    DetachedX = 0,
+                    DetachedY = -200,
+                    DetachedWidth = 200,
+                    PowerBarTags = {
+                        PowerBarTagOne = {
+                            FontSize = 10,
+                            Layout = {"CENTER", "CENTER", 0, 0},
+                            Colour = {1, 1, 1},
+                            Tag = "",
+                        },
+                        PowerBarTagTwo = {
+                            FontSize = 10,
+                            Layout = {"RIGHT", "RIGHT", -3, 0},
+                            Colour = {1, 1, 1},
+                            Tag = "",
+                        },
+                    },
                 },
                 CastBar = {
                     Enabled = true,
@@ -941,6 +1031,24 @@ local Defaults = {
                     Smooth = true,
                     Inverse = false,
                     BackgroundMultiplier = 0.75,
+                    Detached = false,
+                    DetachedX = 0,
+                    DetachedY = -200,
+                    DetachedWidth = 200,
+                    PowerBarTags = {
+                        PowerBarTagOne = {
+                            FontSize = 10,
+                            Layout = {"CENTER", "CENTER", 0, 0},
+                            Colour = {1, 1, 1},
+                            Tag = "",
+                        },
+                        PowerBarTagTwo = {
+                            FontSize = 10,
+                            Layout = {"RIGHT", "RIGHT", -3, 0},
+                            Colour = {1, 1, 1},
+                            Tag = "",
+                        },
+                    },
                 },
                 -- CastBar = {
                 --     Enabled = false,
@@ -1126,6 +1234,24 @@ local Defaults = {
                     Smooth = true,
                     Inverse = false,
                     BackgroundMultiplier = 0.75,
+                    Detached = false,
+                    DetachedX = 0,
+                    DetachedY = -200,
+                    DetachedWidth = 200,
+                    PowerBarTags = {
+                        PowerBarTagOne = {
+                            FontSize = 10,
+                            Layout = {"CENTER", "CENTER", 0, 0},
+                            Colour = {1, 1, 1},
+                            Tag = "",
+                        },
+                        PowerBarTagTwo = {
+                            FontSize = 10,
+                            Layout = {"RIGHT", "RIGHT", -3, 0},
+                            Colour = {1, 1, 1},
+                            Tag = "",
+                        },
+                    },
                 },
                 CastBar = {
                     Enabled = false,
@@ -1312,6 +1438,24 @@ local Defaults = {
                     Smooth = true,
                     Inverse = false,
                     BackgroundMultiplier = 0.75,
+                    Detached = false,
+                    DetachedX = 0,
+                    DetachedY = -200,
+                    DetachedWidth = 200,
+                    PowerBarTags = {
+                        PowerBarTagOne = {
+                            FontSize = 10,
+                            Layout = {"CENTER", "CENTER", 0, 0},
+                            Colour = {1, 1, 1},
+                            Tag = "",
+                        },
+                        PowerBarTagTwo = {
+                            FontSize = 10,
+                            Layout = {"RIGHT", "RIGHT", -3, 0},
+                            Colour = {1, 1, 1},
+                            Tag = "",
+                        },
+                    },
                 },
                 CastBar = {
                     Enabled = true,

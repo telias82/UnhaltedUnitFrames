@@ -444,8 +444,6 @@ do
 			self:RegisterEvent('UNIT_MAXPOWER', Path)
 			self:RegisterEvent('UNIT_POWER_UPDATE', Path)
 
-			-- according to Blizz any class may receive this event due to specific spell auras
-			self:RegisterEvent('UNIT_POWER_POINT_CHARGE', Path)
 		end
 
 		self:RegisterEvent('SPELLS_CHANGED', ColorPath, true)
@@ -463,7 +461,6 @@ do
 		self:UnregisterEvent('UNIT_AURA', Path)
 		self:UnregisterEvent('UNIT_POWER_UPDATE', Path)
 		self:UnregisterEvent('UNIT_MAXPOWER', Path)
-		self:UnregisterEvent('UNIT_POWER_POINT_CHARGE', Path)
 		self:UnregisterEvent('SPELLS_CHANGED', ColorPath)
 
 		if(not unregisterOnly) then
