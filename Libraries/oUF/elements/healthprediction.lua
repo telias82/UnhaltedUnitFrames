@@ -131,8 +131,8 @@ local function Update(self, event, unit)
 	end
 
 	local maxHealth = UnitHealthMax(unit)
-	-- MoP Classic: populate stub values manually
-	do
+	-- Stub fallback only: native calculator reads unit data internally
+	if element.values._isStub then
 		local allHeal   = UnitGetIncomingHeals(unit) or 0
 		local myHeal    = UnitGetIncomingHeals(unit, 'player') or 0
 		element.values._healAll    = allHeal
@@ -237,28 +237,40 @@ local function Enable(self)
 		element.__owner = self
 		element.ForceUpdate = ForceUpdate
 
-		-- MoP Classic: CreateUnitHealPredictionCalculator doesn't exist.
-		-- Use a plain stub table; Update() will populate it via UnitGetIncomingHeals.
-		if not element.values then
-			element.values = {
-				_healAll = 0, _healPlayer = 0, _healOther = 0,
-				_damageAbsorb = 0, _healAbsorb = 0,
-				Reset = function(self)
-					self._healAll = 0; self._healPlayer = 0; self._healOther = 0
-					self._damageAbsorb = 0; self._healAbsorb = 0
-				end,
-				GetIncomingHeals = function(self) return self._healAll, self._healPlayer, self._healOther, false end,
-				GetDamageAbsorbs = function(self) return self._damageAbsorb, false end,
-				GetHealAbsorbs   = function(self) return self._healAbsorb, false end,
-				-- no-op setters (clamping not supported in MoP)
-				SetDamageAbsorbClampMode = function() end,
-				SetHealAbsorbClampMode   = function() end,
-				SetHealAbsorbMode        = function() end,
-				SetIncomingHealClampMode = function() end,
-				SetIncomingHealOverflowPercent = function() end,
-			}
+		if CreateUnitHealPredictionCalculator then
+			if not element.values or element.values._isStub then
+				element.values = CreateUnitHealPredictionCalculator(self.unit)
+			else
+				element.values:Reset()
+			end
+			if element.damageAbsorbClampMode then element.values:SetDamageAbsorbClampMode(element.damageAbsorbClampMode) end
+			if element.healAbsorbClampMode   then element.values:SetHealAbsorbClampMode(element.healAbsorbClampMode)     end
+			if element.healAbsorbMode        then element.values:SetHealAbsorbMode(element.healAbsorbMode)               end
+			if element.incomingHealClampMode then element.values:SetIncomingHealClampMode(element.incomingHealClampMode) end
+			if element.incomingHealOverflow  then element.values:SetIncomingHealOverflowPercent(element.incomingHealOverflow) end
 		else
-			element.values:Reset()
+			-- Fallback: stub table populated manually in Update()
+			if not element.values or not element.values._isStub then
+				element.values = {
+					_isStub = true,
+					_healAll = 0, _healPlayer = 0, _healOther = 0,
+					_damageAbsorb = 0, _healAbsorb = 0,
+					Reset = function(self)
+						self._healAll = 0; self._healPlayer = 0; self._healOther = 0
+						self._damageAbsorb = 0; self._healAbsorb = 0
+					end,
+					GetIncomingHeals = function(self) return self._healAll, self._healPlayer, self._healOther, false end,
+					GetDamageAbsorbs = function(self) return self._damageAbsorb, false end,
+					GetHealAbsorbs   = function(self) return self._healAbsorb, false end,
+					SetDamageAbsorbClampMode     = function() end,
+					SetHealAbsorbClampMode       = function() end,
+					SetHealAbsorbMode            = function() end,
+					SetIncomingHealClampMode     = function() end,
+					SetIncomingHealOverflowPercent = function() end,
+				}
+			else
+				element.values:Reset()
+			end
 		end
 
 		self:RegisterEvent('UNIT_HEALTH', Path)

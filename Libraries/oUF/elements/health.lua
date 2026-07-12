@@ -220,8 +220,8 @@ local function Update(self, event, unit)
 		element:PreUpdate(unit)
 	end
 
-	-- MoP Classic: populate stub values
-	do
+	-- Stub fallback only: native calculator reads unit data internally
+	if element.values._isStub then
 		local all=UnitGetIncomingHeals(unit) or 0
 		local mine=UnitGetIncomingHeals(unit,'player') or 0
 		element.values._healAll=all; element.values._healPlayer=mine; element.values._healOther=all-mine
@@ -480,20 +480,31 @@ local function Enable(self)
 		element.SetColorReaction = SetColorReaction
 		element.SetColorThreat = SetColorThreat
 
-		if(element.values) then
-			element.values:ResetPredictedValues()
+		if CreateUnitHealPredictionCalculator then
+			if not element.values or element.values._isStub then
+				element.values = CreateUnitHealPredictionCalculator(self.unit)
+			else
+				element.values:ResetPredictedValues()
+			end
 		else
-			-- MoP Classic: use plain stub table
-			element.values = {
-				_healAll=0,_healPlayer=0,_healOther=0,_damageAbsorb=0,_healAbsorb=0,
-				Reset=function(self) self._healAll=0;self._healPlayer=0;self._healOther=0;self._damageAbsorb=0;self._healAbsorb=0 end,
-				GetIncomingHeals=function(self) return self._healAll,self._healPlayer,self._healOther,false end,
-				GetDamageAbsorbs=function(self) return self._damageAbsorb,false end,
-				GetHealAbsorbs=function(self) return self._healAbsorb,false end,
-				SetDamageAbsorbClampMode=function()end,SetHealAbsorbClampMode=function()end,
-				SetHealAbsorbMode=function()end,SetIncomingHealClampMode=function()end,
-				SetIncomingHealOverflowPercent=function()end,
-			}
+			-- Fallback: stub table populated manually in Update()
+			if not element.values or not element.values._isStub then
+				local stub = {
+					_isStub=true,
+					_healAll=0,_healPlayer=0,_healOther=0,_damageAbsorb=0,_healAbsorb=0,
+				}
+				stub.Reset=function(self) self._healAll=0;self._healPlayer=0;self._healOther=0;self._damageAbsorb=0;self._healAbsorb=0 end
+				stub.ResetPredictedValues = stub.Reset
+				stub.GetIncomingHeals=function(self) return self._healAll,self._healPlayer,self._healOther,false end
+				stub.GetDamageAbsorbs=function(self) return self._damageAbsorb,false end
+				stub.GetHealAbsorbs=function(self) return self._healAbsorb,false end
+				stub.SetDamageAbsorbClampMode=function()end; stub.SetHealAbsorbClampMode=function()end
+				stub.SetHealAbsorbMode=function()end; stub.SetIncomingHealClampMode=function()end
+				stub.SetIncomingHealOverflowPercent=function()end; stub.SetMaximumHealthMode=function()end
+				element.values = stub
+			else
+				element.values:ResetPredictedValues()
+			end
 		end
 
 		if(not element.smoothing) then
