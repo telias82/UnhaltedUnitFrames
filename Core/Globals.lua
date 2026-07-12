@@ -454,8 +454,6 @@ UUF.AURA_FILTERS = {
     Debuffs = {
         ["HARMFUL"] = {Title = "Harmful", Desc = "Debuffs"},
         ["HARMFUL|PLAYER"] = {Title = "Player", Desc = "Debuffs applied by the Player"},
-        ["HARMFUL|RAID"] = {Title = "Raid", Desc = "|cFFFF4040Harmful|r: Debuffs that show up on Raid Frames."},
-        ["CROWD_CONTROL"] = {Title = "Crowd Control", Desc = "Crowd Control Effects."},
-        ["RAID_PLAYER_DISPELLABLE"] = {Title = "Player Dispellable", Desc = "Auras that the Player can dispel."},
+        ["HARMFUL|RAID"] = {Title = "Raid", Desc = "Debuffs flagged for raid frames by Blizzard."},
     }
 }

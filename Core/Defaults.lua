@@ -268,6 +268,11 @@ local Defaults = {
                             Colour = {1, 1, 1},
                         },
                     },
+                    ReadyCheck = {
+                        Enabled = true,
+                        Size = 16,
+                        Layout = {"TOPRIGHT", "TOPRIGHT", 0, 0},
+                    },
                 },
                 Auras = {
                     FrameStrata = "LOW",
@@ -486,7 +491,12 @@ local Defaults = {
                     Target = {
                         Enabled = false,
                         Colour = {1, 1, 1},
-                    }
+                    },
+                    ReadyCheck = {
+                        Enabled = true,
+                        Size = 16,
+                        Layout = {"TOPRIGHT", "TOPRIGHT", 0, 0},
+                    },
                 },
                 Range = {
                     Enabled = true,
@@ -694,7 +704,12 @@ local Defaults = {
                     Target = {
                         Enabled = false,
                         Colour = {1, 1, 1},
-                    }
+                    },
+                    ReadyCheck = {
+                        Enabled = false,
+                        Size = 16,
+                        Layout = {"TOPRIGHT", "TOPRIGHT", 0, 0},
+                    },
                 },
                 Auras = {
                     FrameStrata = "LOW",
@@ -902,7 +917,12 @@ local Defaults = {
                     Target = {
                         Enabled = false,
                         Colour = {1, 1, 1},
-                    }
+                    },
+                    ReadyCheck = {
+                        Enabled = false,
+                        Size = 16,
+                        Layout = {"TOPRIGHT", "TOPRIGHT", 0, 0},
+                    },
                 },
                 Auras = {
                     FrameStrata = "LOW",
@@ -1105,7 +1125,12 @@ local Defaults = {
                     Target = {
                         Enabled = false,
                         Colour = {1, 1, 1},
-                    }
+                    },
+                    ReadyCheck = {
+                        Enabled = false,
+                        Size = 16,
+                        Layout = {"TOPRIGHT", "TOPRIGHT", 0, 0},
+                    },
                 },
                 Auras = {
                     FrameStrata = "LOW",
@@ -1309,7 +1334,12 @@ local Defaults = {
                     Target = {
                         Enabled = false,
                         Colour = {1, 1, 1},
-                    }
+                    },
+                    ReadyCheck = {
+                        Enabled = false,
+                        Size = 16,
+                        Layout = {"TOPRIGHT", "TOPRIGHT", 0, 0},
+                    },
                 },
                 Auras = {
                     FrameStrata = "LOW",
@@ -1513,7 +1543,12 @@ local Defaults = {
                     Target = {
                         Enabled = true,
                         Colour = {1, 1, 1},
-                    }
+                    },
+                    ReadyCheck = {
+                        Enabled = false,
+                        Size = 16,
+                        Layout = {"TOPRIGHT", "TOPRIGHT", 0, 0},
+                    },
                 },
                 Auras = {
                     FrameStrata = "LOW",

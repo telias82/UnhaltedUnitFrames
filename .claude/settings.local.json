@@ -38,7 +38,12 @@
       "Bash(unzip -p \"ElvUI_Libraries.zip\" \"ElvUI/Game/Shared/Modules/UnitFrames/Elements/Power.lua\")",
       "Bash(unzip -p \"ElvUI_Libraries.zip\" \"ElvUI/Game/Shared/General/Movers.lua\")",
       "Read(//d/World of Warcraft/_classic_/Interface/AddOns/**)",
-      "Bash(unzip -l ElvUI_Libraries.zip)"
+      "Bash(unzip -l ElvUI_Libraries.zip)",
+      "Bash(claude *)",
+      "Bash(npm show *)",
+      "Bash(Select-Object -ExpandProperty Name)",
+      "Bash(xargs wc -l)",
+      "Bash(grep -n \"^\\\\s*[a-z]*\\\\s*=\\\\s*{$\" Core/Defaults.lua)"
     ]
   }
 }

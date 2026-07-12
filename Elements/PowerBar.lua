@@ -176,31 +176,6 @@ local leftBtn  = makeArrow("<", -1,  0, "RIGHT", upBtn,    "LEFT",   -2,  0)
 local rightBtn = makeArrow(">",  1,  0, "LEFT",  upBtn,    "RIGHT",   2,  0)
 local downBtn  = makeArrow("v",  0, -1, "TOP",   upBtn,    "BOTTOM",  0, -2)
 
--- Keyboard capture frame (unchanged behaviour)
-local nudgeFrame = CreateFrame("Frame", "UUFNudgeFrame", UIParent)
-nudgeFrame:EnableKeyboard(false)
-nudgeFrame:SetPropagateKeyboardInput(true)
-
-local function handleNudgeKey(key)
-    if not nudgeHolder or not nudgeHolder:IsShown() then return false end
-    if key ~= "UP" and key ~= "DOWN" and key ~= "LEFT" and key ~= "RIGHT" then return false end
-    local step = IsShiftKeyDown() and 10 or 1
-    if key == "UP"    then applyNudge(0,     step)
-    elseif key == "DOWN"  then applyNudge(0,    -step)
-    elseif key == "LEFT"  then applyNudge(-step, 0)
-    elseif key == "RIGHT" then applyNudge( step, 0)
-    end
-    return true
-end
-
-nudgeFrame:SetScript("OnKeyDown", function(self, key)
-    nudgeFrame:SetPropagateKeyboardInput(not handleNudgeKey(key))
-end)
-nudgeFrame:SetScript("OnKeyUp", function(self, key)
-    nudgeFrame:SetPropagateKeyboardInput(not (nudgeHolder and nudgeHolder:IsShown()
-        and (key == "UP" or key == "DOWN" or key == "LEFT" or key == "RIGHT")))
-end)
-
 -- Selection highlight on the active holder
 local holderHighlight = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
 holderHighlight:SetFrameStrata("HIGH")
@@ -457,7 +432,6 @@ function UUF:SetNudgeTarget(holder, db, title, refreshFn)
     nudgeHolder = holder
     nudgeDB = db
     nudgeRefreshFn = refreshFn
-    nudgeFrame:EnableKeyboard(holder ~= nil)
     if holder then
         moverUI._title:SetText(title or "Move Bar")
         if moverUI._wBox then
@@ -486,7 +460,6 @@ function UUF:ClearNudgeTarget()
     nudgeHolder = nil
     nudgeDB = nil
     nudgeRefreshFn = nil
-    nudgeFrame:EnableKeyboard(false)
     moverUI:Hide()
     holderHighlight:Hide()
 end
